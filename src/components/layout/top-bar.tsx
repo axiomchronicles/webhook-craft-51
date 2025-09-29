@@ -24,6 +24,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthStore } from '@/store/auth';
 import { useUIStore } from '@/store/ui';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const breadcrumbMap: Record<string, string[]> = {
   '/': ['Dashboard'],
@@ -128,6 +129,9 @@ export function TopBar() {
             <Command className="w-4 h-4" />
             <span className="hidden sm:inline">Commands</span>
           </Button>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Notifications */}
           <Button variant="ghost" size="sm" className="relative">

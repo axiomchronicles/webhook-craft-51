@@ -17,10 +17,17 @@ const Terminal = lazy(() => import("./pages/terminal"));
 const ConsoleComponent = lazy(() => import("./pages/console"));
 const Alerts = lazy(() => import("./pages/alerts"));
 const Teams = lazy(() => import("./pages/teams"));
+const Integrations = lazy(() => import("./pages/integrations"));
+const Audit = lazy(() => import("./pages/audit"));
+const Billing = lazy(() => import("./pages/billing"));
+const Compliance = lazy(() => import("./pages/compliance"));
+const Settings = lazy(() => import("./pages/settings"));
 
 const queryClient = new QueryClient();
 
 import { ThemeProvider } from "./components/theme-provider";
+import { PageLoadingState } from "./components/ui/loading-spinner";
+
 const App = () => (
   <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
     <QueryClientProvider client={queryClient}>
@@ -33,18 +40,18 @@ const App = () => (
             <Route index element={<Dashboard />} />
             <Route path="endpoints" element={<Endpoints />} />
             <Route path="deliveries" element={<Deliveries />} />
-            <Route path="simulator" element={<Suspense fallback={<div>Loading...</div>}><Simulator /></Suspense>} />
-            <Route path="pipelines" element={<Suspense fallback={<div>Loading...</div>}><Pipelines /></Suspense>} />
-            <Route path="metrics" element={<Suspense fallback={<div>Loading...</div>}><Metrics /></Suspense>} />
-            <Route path="terminal" element={<Suspense fallback={<div>Loading...</div>}><Terminal /></Suspense>} />
-            <Route path="console" element={<Suspense fallback={<div>Loading...</div>}><ConsoleComponent /></Suspense>} />
-            <Route path="alerts" element={<Suspense fallback={<div>Loading...</div>}><Alerts /></Suspense>} />
-            <Route path="teams" element={<Suspense fallback={<div>Loading...</div>}><Teams /></Suspense>} />
-            <Route path="integrations" element={<div className="p-6"><h1 className="text-2xl font-bold">Integrations</h1><p className="text-muted-foreground">External service connections</p></div>} />
-            <Route path="audit" element={<div className="p-6"><h1 className="text-2xl font-bold">Audit</h1><p className="text-muted-foreground">Security and compliance logs</p></div>} />
-            <Route path="billing" element={<div className="p-6"><h1 className="text-2xl font-bold">Billing</h1><p className="text-muted-foreground">Usage and billing management</p></div>} />
-            <Route path="compliance" element={<div className="p-6"><h1 className="text-2xl font-bold">Compliance</h1><p className="text-muted-foreground">GDPR and SOC2 tools</p></div>} />
-            <Route path="settings" element={<div className="p-6"><h1 className="text-2xl font-bold">Settings</h1><p className="text-muted-foreground">System configuration</p></div>} />
+            <Route path="simulator" element={<Suspense fallback={<PageLoadingState title="Loading Simulator" description="Setting up webhook testing environment..." />}><Simulator /></Suspense>} />
+            <Route path="pipelines" element={<Suspense fallback={<PageLoadingState title="Loading Pipelines" description="Preparing pipeline builder..." />}><Pipelines /></Suspense>} />
+            <Route path="metrics" element={<Suspense fallback={<PageLoadingState title="Loading Analytics" description="Fetching performance metrics..." />}><Metrics /></Suspense>} />
+            <Route path="terminal" element={<Suspense fallback={<PageLoadingState title="Loading Terminal" description="Initializing command interface..." />}><Terminal /></Suspense>} />
+            <Route path="console" element={<Suspense fallback={<PageLoadingState title="Loading Console" description="Connecting to live logs..." />}><ConsoleComponent /></Suspense>} />
+            <Route path="alerts" element={<Suspense fallback={<PageLoadingState title="Loading Alerts" description="Loading monitoring rules..." />}><Alerts /></Suspense>} />
+            <Route path="teams" element={<Suspense fallback={<PageLoadingState title="Loading Teams" description="Fetching team information..." />}><Teams /></Suspense>} />
+            <Route path="integrations" element={<Suspense fallback={<PageLoadingState title="Loading Integrations" description="Connecting to services..." />}><Integrations /></Suspense>} />
+            <Route path="audit" element={<Suspense fallback={<PageLoadingState title="Loading Audit Logs" description="Fetching security data..." />}><Audit /></Suspense>} />
+            <Route path="billing" element={<Suspense fallback={<PageLoadingState title="Loading Billing" description="Calculating usage..." />}><Billing /></Suspense>} />
+            <Route path="compliance" element={<Suspense fallback={<PageLoadingState title="Loading Compliance" description="Checking frameworks..." />}><Compliance /></Suspense>} />
+            <Route path="settings" element={<Suspense fallback={<PageLoadingState title="Loading Settings" description="Loading preferences..." />}><Settings /></Suspense>} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
