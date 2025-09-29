@@ -40,33 +40,7 @@ import {
   Download,
   Play,
   Pause,
-  MoreHorizontal,
-  Shield,
-  Database,
-  Globe,
-  Users,
-  Activity,
-  TrendingUp,
-  AlertCircle,
-  Info,
-  Star,
-  Bookmark,
-  Share2,
-  Eye,
-  EyeOff,
-  RefreshCw,
-  Layers,
-  GitBranch,
-  Cloud,
-  Server,
-  Cpu,
-  HardDrive,
-  Network,
-  Lock,
-  Key,
-  Webhook,
-  Package,
-  Gauge
+  MoreHorizontal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -78,12 +52,10 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
 import { CommandPalette } from './command-palette';
 import { ReferencePanel } from './reference-panel';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/components/theme-provider';
-import { PROJECT_DATA, type ProjectData } from '@/lib/project-data';
 
 interface Message {
   id: string;
@@ -121,7 +93,7 @@ interface Reaction {
 }
 
 interface CardData {
-  type: 'status' | 'metric' | 'table' | 'system_overview';
+  type: 'status' | 'metric' | 'table';
   title: string;
   data: any;
 }
@@ -130,7 +102,6 @@ interface MessageMetadata {
   processingTime?: number;
   confidence?: number;
   source?: string;
-  projectContext?: boolean;
 }
 
 interface ChatHistory {
@@ -216,322 +187,154 @@ const QUICK_SUGGESTIONS = [
   "Backup status"
 ];
 
-// Enhanced AI Intelligence System - Google Wiz Style Responses
-const getIntelligentResponse = (input: string, projectData: ProjectData): any => {
+// Enhanced response system
+const getContextualResponse = (input: string): any => {
   const lowerInput = input.toLowerCase();
   
-  // System health & status queries
-  if (lowerInput.includes('status') || lowerInput.includes('health') || lowerInput.includes('overview')) {
-    const services = projectData.infrastructure.services;
-    const healthyServices = Object.values(services).filter(s => s.status === 'healthy').length;
-    const totalServices = Object.values(services).length;
-    
+  // System status queries
+  if (lowerInput.includes('status') || lowerInput.includes('health')) {
     return {
-      content: `**🟢 System Health: OPTIMAL**
+      content: `**🟢 System Status: HEALTHY**
 
 \`\`\`json
 {
-  "overall_status": "healthy",
-  "services": "${healthyServices}/${totalServices} operational",
-  "uptime": "${projectData.infrastructure.services.webhookService.uptime}%",
-  "response_time": "${projectData.webhooks.statistics.averageResponseTime}ms",
-  "success_rate": "${projectData.webhooks.statistics.successRate}%",
-  "active_alerts": ${projectData.webhooks.alerts.length},
-  "deployment": "${projectData.infrastructure.deployment.current.version}",
-  "environment": "${projectData.meta.environment}"
+  "overall_status": "operational",
+  "uptime": "99.94%",
+  "active_endpoints": 47,
+  "success_rate": "99.2%",
+  "avg_response_time": "142ms",
+  "last_deployment": "2 hours ago",
+  "active_users": 1247,
+  "storage_usage": "67%",
+  "memory_usage": "45%"
 }
 \`\`\`
 
-**📊 Key Metrics:**
-• **Throughput:** ${projectData.webhooks.statistics.totalRequests.toLocaleString()} total requests
-• **Peak Performance:** ${projectData.webhooks.statistics.peakThroughput}/hr at optimal load
-• **Error Rate:** ${projectData.webhooks.statistics.errorRate}% (well below 2% target)
-• **Team Activity:** ${projectData.team.members.filter(m => m.status === 'active').length} active members
+**🔍 Quick Insights:**
+• All core services are operational
+• Response times are within optimal range
+• No critical alerts in the last 24h
+• Recent deployment successful
 
-**🎯 System Insights:**
-${healthyServices === totalServices ? '✅ All core services operational' : '⚠️ Some services need attention'}
-${projectData.webhooks.alerts.length > 0 ? `⚡ ${projectData.webhooks.alerts.length} active alerts require review` : '✅ No active alerts'}
-${projectData.infrastructure.scaling.autoScaling ? '🔄 Auto-scaling enabled and optimized' : '📌 Manual scaling configuration'}
-
-**Next Actions:**`,
-      suggestions: [
-        "View detailed metrics",
-        "Check service dependencies", 
-        "Analyze performance trends",
-        "Review security status"
-      ],
+Need more details on any specific area?`,
+      suggestions: ["View detailed metrics", "Check individual services", "See recent deployments"],
       actions: [
-        { id: 'metrics', label: 'Full Dashboard', icon: <BarChart3 className="w-3 h-3" /> },
-        { id: 'alerts', label: 'Alert Center', icon: <AlertCircle className="w-3 h-3" /> },
-        { id: 'optimize', label: 'Optimize Performance', icon: <TrendingUp className="w-3 h-3" /> }
+        { id: 'metrics', label: 'Full Metrics', icon: <BarChart3 className="w-3 h-3" /> },
+        { id: 'console', label: 'System Console', icon: <Terminal className="w-3 h-3" /> }
       ],
       cardData: {
-        type: 'system_overview',
-        title: 'Live System Overview',
-        data: {
-          services: healthyServices,
-          total: totalServices,
-          uptime: projectData.infrastructure.services.webhookService.uptime,
-          responseTime: projectData.webhooks.statistics.averageResponseTime,
-          successRate: projectData.webhooks.statistics.successRate
-        }
+        type: 'status',
+        title: 'Live System Health',
+        data: { status: 'healthy', endpoints: 47, uptime: '99.94%', users: 1247 }
       }
     };
   }
-
-  // Performance & metrics analysis
-  if (lowerInput.includes('performance') || lowerInput.includes('metrics') || lowerInput.includes('analytics')) {
+  
+  // Performance queries
+  if (lowerInput.includes('performance') || lowerInput.includes('metrics')) {
     return {
-      content: `**📈 Performance Analytics - Deep Dive**
+      content: `**📊 Performance Analytics**
 
-| **Category** | **Current** | **Target** | **Trend** | **Status** |
-|--------------|-------------|------------|-----------|------------|
-| **Throughput** | ${projectData.webhooks.statistics.totalRequests.toLocaleString()}/total | 2M/month | 📈 +24% | 🟢 Excellent |
-| **Response Time** | ${projectData.webhooks.statistics.averageResponseTime}ms avg | <200ms | 📉 -15ms | 🟢 Optimal |
-| **Success Rate** | ${projectData.webhooks.statistics.successRate}% | >98% | 📈 +0.5% | 🟢 Target Met |
-| **Error Rate** | ${projectData.webhooks.statistics.errorRate}% | <2% | 📉 -0.3% | 🟢 Improved |
+| **Metric** | **Current** | **Target** | **Trend** |
+|------------|-------------|------------|-----------|
+| **Throughput** | 1,247/hr | 1,000/hr | 📈 +24% |
+| **Error Rate** | 0.8% | <2% | 📉 -0.3% |
+| **Avg Latency** | 142ms | <200ms | 📉 -15ms |
+| **Success Rate** | 99.2% | >98% | 📈 +0.5% |
 
-**🔍 Performance Insights:**
-• **Peak Traffic:** ${projectData.webhooks.statistics.peakThroughput} req/hr during business hours
-• **Fastest Endpoint:** \`${projectData.webhooks.endpoints[0].url}\` (${projectData.webhooks.endpoints[0].averageResponseTime}ms avg)
-• **Resource Usage:** CPU ${projectData.infrastructure.scaling.cpu.current}%, Memory ${projectData.infrastructure.scaling.memory.current}%
-• **Scaling Status:** ${projectData.infrastructure.scaling.instances} instances, auto-scaling ${projectData.infrastructure.scaling.autoScaling ? 'enabled' : 'disabled'}
+**🎯 Performance Insights:**
+• **Peak hours:** 2-4 PM EST (1,800+ req/hr)
+• **Fastest endpoint:** \`/webhooks/stripe\` (89ms avg)
+• **Slowest endpoint:** \`/webhooks/legacy\` (340ms avg)
+• **Most active:** Payment webhooks (45% of traffic)
 
-**🎯 Optimization Opportunities:**
-1. **Cache Hit Rate:** Implement Redis caching for frequent queries
-2. **Database Performance:** Consider read replicas for heavy read operations  
-3. **CDN Usage:** Optimize static asset delivery through CloudFlare
-4. **Connection Pooling:** Fine-tune database connection limits
-
-**📊 Advanced Metrics:**
-\`\`\`json
-{
-  "infrastructure": {
-    "cpu_utilization": "${projectData.infrastructure.scaling.cpu.current}%",
-    "memory_usage": "${projectData.infrastructure.scaling.memory.current}%", 
-    "disk_io": "normal",
-    "network_bandwidth": "optimal"
-  },
-  "business_impact": {
-    "revenue_requests": "89%",
-    "critical_path_latency": "${projectData.webhooks.statistics.averageResponseTime}ms",
-    "user_satisfaction": "98.2%"
-  }
-}
-\`\`\``,
-      suggestions: [
-        "Optimize database queries",
-        "Scale infrastructure",
-        "Configure caching strategy",
-        "Set performance alerts"
-      ],
+**🔧 Recommendations:**
+1. Consider caching for legacy endpoints
+2. Scale up during peak hours
+3. Monitor payment webhook stability`,
+      suggestions: ["Optimize slow endpoints", "Scale recommendations", "Set up alerts"],
       actions: [
-        { id: 'auto-optimize', label: 'Auto-Optimize', variant: 'default' as const },
-        { id: 'scale-up', label: 'Scale Resources', variant: 'outline' as const }
+        { id: 'optimize', label: 'Auto-Optimize', variant: 'default' as const },
+        { id: 'scale', label: 'Scale Up', variant: 'outline' as const }
       ]
     };
   }
-
-  // Security & compliance queries
-  if (lowerInput.includes('security') || lowerInput.includes('audit') || lowerInput.includes('compliance')) {
-    const expiringSoon = projectData.security.certificates.filter(cert => cert.status === 'expiring');
-    
+  
+  // Alert queries
+  if (lowerInput.includes('alert') || lowerInput.includes('error') || lowerInput.includes('issue')) {
     return {
-      content: `**🔒 Security & Compliance Overview**
-
-**🛡️ Security Posture: ${expiringSoon.length > 0 ? 'ATTENTION NEEDED' : 'STRONG'}**
+      content: `**🚨 Recent Alerts & Issues**
 
 \`\`\`yaml
-SECURITY_STATUS:
-  overall: ${expiringSoon.length > 0 ? 'warning' : 'healthy'}
-  certificates: ${projectData.security.certificates.filter(c => c.status === 'valid').length}/${projectData.security.certificates.length} valid
-  api_keys: ${projectData.security.apiKeys.length} active
-  firewall_rules: ${projectData.security.firewall.rules.length} configured
-  blocked_ips: ${projectData.security.firewall.blockedIPs.length}
-  audit_events: ${projectData.security.audit.length} recent
+ACTIVE ALERTS: 2
+RESOLVED TODAY: 7
+CRITICAL: 0
 \`\`\`
 
-**🔐 Certificate Management:**
-${projectData.security.certificates.map(cert => 
-  `• **${cert.domain}**: ${cert.status === 'expiring' ? '⚠️' : '✅'} ${
-    cert.status === 'expiring' ? 'Expires in 7 days - ACTION REQUIRED' : 'Valid'
-  }`
-).join('\n')}
+**⚠️ Active Issues:**
+1. **SSL Certificate Expiry Warning**
+   - Endpoint: \`api.legacy-partner.com\`
+   - Expires: 7 days
+   - Impact: Medium
+   - Action: Update certificate
 
-**🔑 API Security:**
-• **Active Keys:** ${projectData.security.apiKeys.length} with scope-limited permissions
-• **Access Control:** Role-based permissions enforced
-• **Rate Limiting:** ${projectData.configuration.features.rateLimiting ? 'Enabled' : 'Disabled'}
-• **Request Validation:** Input sanitization active
+2. **High Memory Usage**
+   - Service: webhook-processor
+   - Usage: 89%
+   - Duration: 2 hours
+   - Action: Scale or restart
 
-**🚨 Security Recommendations:**
-${expiringSoon.length > 0 ? '1. **URGENT:** Renew SSL certificates expiring soon\n' : ''}2. **Enable 2FA:** Multi-factor authentication for all admin accounts
-3. **Audit Logs:** Regular security audit log reviews
-4. **Penetration Testing:** Schedule quarterly security assessments
-5. **Backup Encryption:** Ensure all backups are encrypted at rest
+**✅ Recently Resolved:**
+• Database connection timeout (12:30 PM)
+• Rate limiting on payment APIs (11:45 AM)
+• S3 upload failures (10:20 AM)
 
-**📋 Compliance Status:**
-• **GDPR:** Data processing compliant
-• **SOC 2:** Type II controls implemented  
-• **PCI DSS:** Payment processing secured
-• **HIPAA:** Healthcare data protection ready`,
-      suggestions: [
-        "Renew SSL certificates",
-        "Review API permissions", 
-        "Run security scan",
-        "Update firewall rules"
-      ],
+All critical systems are stable. Would you like me to take action on any alerts?`,
+      suggestions: ["Fix SSL certificate", "Restart high memory service", "View alert history"],
       actions: [
-        { id: 'renew-ssl', label: 'Renew Certificates', variant: 'default' as const },
-        { id: 'security-scan', label: 'Security Scan', variant: 'outline' as const }
+        { id: 'fix-ssl', label: 'Update SSL', variant: 'default' as const },
+        { id: 'restart-service', label: 'Restart Service', variant: 'outline' as const }
       ]
     };
   }
-
-  // Team & collaboration queries
-  if (lowerInput.includes('team') || lowerInput.includes('users') || lowerInput.includes('members')) {
+  
+  // Deployment queries
+  if (lowerInput.includes('deploy') || lowerInput.includes('release')) {
     return {
-      content: `**👥 Team & Access Management**
+      content: `**🚀 Deployment Status**
 
-**📊 Team Overview:**
-• **Active Members:** ${projectData.team.members.filter(m => m.status === 'active').length}/${projectData.team.members.length}
-• **Roles Configured:** ${projectData.team.roles.length} with granular permissions
-• **Recent Activity:** ${projectData.team.activity.length} actions in last 24h
-
-**👤 Team Members:**
-${projectData.team.members.map(member => 
-  `• **${member.name}** (${member.email})\n  └ Role: ${member.role} | Status: ${member.status === 'active' ? '🟢' : '🔴'} | Last Active: ${new Date(member.lastActive).toLocaleDateString()}`
-).join('\n\n')}
-
-**🔐 Permission Matrix:**
-\`\`\`json
-{
-  "admin_permissions": ["deploy", "configure", "monitor", "manage_users"],
-  "developer_permissions": ["develop", "monitor", "debug"],
-  "viewer_permissions": ["monitor", "view_logs"]
-}
-\`\`\`
-
-**📈 Activity Summary:**
-• **Deployments:** ${projectData.team.activity.filter(a => a.action.includes('deployment')).length} this month
-• **Configuration Changes:** ${projectData.team.activity.filter(a => a.action.includes('config')).length} recent
-• **Monitoring Access:** ${projectData.team.activity.filter(a => a.action.includes('monitor')).length} views
-
-**🎯 Team Insights:**
-• All team members have appropriate access levels
-• No dormant accounts detected
-• Permission reviews up to date
-• Collaborative workflows optimized`,
-      suggestions: [
-        "Add team member",
-        "Review permissions",
-        "View activity logs", 
-        "Configure notifications"
-      ],
-      actions: [
-        { id: 'invite-member', label: 'Invite Member', variant: 'default' as const },
-        { id: 'audit-access', label: 'Audit Access', variant: 'outline' as const }
-      ]
-    };
-  }
-
-  // Deployment & infrastructure queries  
-  if (lowerInput.includes('deploy') || lowerInput.includes('release') || lowerInput.includes('infrastructure')) {
-    return {
-      content: `**🚀 Deployment & Infrastructure Status**
-
-**📦 Current Deployment:**
+**Latest Deployment:**
 \`\`\`bash
-✅ ${projectData.infrastructure.deployment.current.version}
-   Environment: ${projectData.meta.environment}
-   Deployed: ${new Date(projectData.infrastructure.deployment.current.deployedAt).toLocaleString()}
-   By: ${projectData.infrastructure.deployment.current.deployedBy}
-   Rollout: ${projectData.infrastructure.deployment.current.rolloutPercentage}% complete
-   Status: ${projectData.infrastructure.deployment.current.status}
+✅ webhook-service:v2.4.1
+   Deployed: 2 hours ago
+   Status: Successful
+   Rollout: 100% complete
+   Health: All checks passed
 \`\`\`
 
-**🏗️ Infrastructure Health:**
-| **Service** | **Status** | **Uptime** | **Response** | **Instances** |
-|-------------|------------|------------|--------------|---------------|
-${Object.entries(projectData.infrastructure.services).map(([key, service]) => 
-  `| ${service.name} | ${service.status === 'healthy' ? '🟢' : '🔴'} ${service.status} | ${service.uptime}% | ${service.responseTime}ms | ${service.instances} |`
-).join('\n')}
+**📋 Recent Deployments:**
+• **v2.4.1** - SSL improvements, bug fixes
+• **v2.4.0** - New webhook validation system  
+• **v2.3.9** - Performance optimizations
+• **v2.3.8** - Security patches
 
-**⚙️ Auto-Scaling Configuration:**
-• **Current Instances:** ${projectData.infrastructure.scaling.instances}
-• **Target Instances:** ${projectData.infrastructure.scaling.targetInstances}  
-• **CPU Threshold:** ${projectData.infrastructure.scaling.cpu.target}% (current: ${projectData.infrastructure.scaling.cpu.current}%)
-• **Memory Threshold:** ${projectData.infrastructure.scaling.memory.target}% (current: ${projectData.infrastructure.scaling.memory.current}%)
-• **Auto-Scaling:** ${projectData.infrastructure.scaling.autoScaling ? '✅ Enabled' : '❌ Disabled'}
-
-**📈 Deployment Pipeline:**
-\`\`\`mermaid
-graph LR
-    A[Build] --> B[Test] --> C[Deploy] --> D[Verify]
-    C -->|Auto| E[Production]
-\`\`\`
-
-**🎯 Infrastructure Insights:**
-• All services running optimally
-• Resource utilization within target ranges
-• Auto-scaling triggers configured appropriately
-• Pipeline automation fully functional
-
-**🔄 Available Actions:**
+**🎯 Available Actions:**
 • Deploy latest staging changes
-• Rollback to previous version  
-• Scale infrastructure manually
-• Configure deployment windows`,
-      suggestions: [
-        "Deploy to production",
-        "View pipeline status", 
-        "Scale resources",
-        "Configure auto-deploy"
-      ],
+• Rollback to previous version
+• Schedule automated deployment
+• View deployment pipeline
+
+Ready to deploy? I can handle the entire process for you.`,
+      suggestions: ["Deploy staging", "View pipeline", "Schedule deployment"],
       actions: [
-        { id: 'deploy-now', label: 'Deploy Latest', variant: 'default' as const },
-        { id: 'view-pipeline', label: 'View Pipeline', variant: 'outline' as const }
+        { id: 'deploy-staging', label: 'Deploy Now', variant: 'default' as const },
+        { id: 'schedule', label: 'Schedule', variant: 'outline' as const }
       ]
     };
   }
-
-  // Default fallback with project context
-  return {
-    content: `I have complete access to your **${projectData.meta.name}** project running **${projectData.meta.version}** in **${projectData.meta.environment}**.
-
-**🎯 What I can help you with:**
-
-**📊 Monitoring & Analytics**
-• Real-time system health & performance metrics
-• Alert management and incident response
-• Usage analytics and optimization insights
-
-**🔧 Infrastructure Management**  
-• Deployment automation and rollback capabilities
-• Auto-scaling configuration and resource optimization
-• Service health monitoring and troubleshooting
-
-**👥 Team & Security**
-• User access management and permissions
-• Security audit and compliance monitoring
-• API key management and certificate renewal
-
-**⚡ Quick Commands:**
-• \`/status\` - Complete system overview
-• \`/deploy\` - Deployment management
-• \`/security\` - Security posture review
-• \`/team\` - Team access and activity
-
-Ask me anything about your project - I have full visibility into all systems, metrics, configurations, and can take actions on your behalf!`,
-    suggestions: [
-      "Show system status",
-      "Performance analysis",
-      "Security review", 
-      "Team management",
-      "Deploy latest changes",
-      "View recent alerts"
-    ]
-  };
+  
+  // Default response for general queries
+  return DEVELOPER_RESPONSES[Math.floor(Math.random() * DEVELOPER_RESPONSES.length)];
 };
 
 export function NextGenChatBot() {
@@ -635,7 +438,7 @@ export function NextGenChatBot() {
 
     // Simulate AI response with enhanced logic
     setTimeout(() => {
-      const response = getIntelligentResponse(content.trim(), PROJECT_DATA);
+      const response = getContextualResponse(content.trim());
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
@@ -651,8 +454,7 @@ export function NextGenChatBot() {
         metadata: {
           processingTime: 145 + Math.random() * 100,
           confidence: 0.85 + Math.random() * 0.1,
-          source: 'AI Assistant',
-          projectContext: true
+          source: 'AI Assistant'
         }
       };
       
@@ -1104,102 +906,51 @@ I'll notify you when deployment completes.`,
           </div>
         )}
 
-        {/* Enhanced Card Data with rich visualizations */}
+        {/* Enhanced Card Data */}
         {message.cardData && (
-          <Card className="mt-3 max-w-md border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-card/80">
-            <CardHeader className="pb-3 bg-gradient-to-r from-primary/5 to-accent/5 border-b border-border/30">
+          <Card className="mt-3 max-w-md border-border/50 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <CardHeader className="pb-3 bg-gradient-to-r from-muted/20 to-muted/10">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                {message.cardData.type === 'system_overview' && <Activity className="w-4 h-4 text-primary" />}
-                {message.cardData.type === 'status' && <CheckCircle className="w-4 h-4 text-success" />}
-                {message.cardData.type === 'metric' && <BarChart3 className="w-4 h-4 text-primary" />}
+                <BarChart3 className="w-4 h-4 text-primary" />
                 {message.cardData.title}
-                <Badge variant="outline" className="text-xs ml-auto">
-                  Live
-                </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-4 space-y-4">
-              {(message.cardData.type === 'status' || message.cardData.type === 'system_overview') && (
+            <CardContent className="pt-0 space-y-3">
+              {message.cardData.type === 'status' && (
                 <>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Shield className="w-3 h-3" />
-                          Status
-                        </span>
-                        <Badge variant="secondary" className="bg-success/10 text-success">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Healthy
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          Uptime
-                        </span>
-                        <span className="text-sm font-mono font-semibold text-success">
-                          {message.cardData.data.uptime}%
-                        </span>
-                      </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-xs text-muted-foreground">Status</span>
+                      <Badge variant="secondary" className="bg-success/10 text-success w-fit">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        {message.cardData.data.status}
+                      </Badge>
                     </div>
-                    
-                    <div className="flex flex-col space-y-2">
-                      {message.cardData.data.services !== undefined && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Server className="w-3 h-3" />
-                            Services
-                          </span>
-                          <span className="text-sm font-mono font-semibold">
-                            {message.cardData.data.services}/{message.cardData.data.total}
-                          </span>
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-xs text-muted-foreground">Uptime</span>
+                      <span className="text-sm font-mono font-semibold">{message.cardData.data.uptime}</span>
+                    </div>
+                  </div>
+                  
+                  {message.cardData.data.endpoints && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col space-y-1">
+                        <span className="text-xs text-muted-foreground">Endpoints</span>
+                        <span className="text-sm font-mono font-semibold">{message.cardData.data.endpoints}</span>
+                      </div>
+                      {message.cardData.data.users && (
+                        <div className="flex flex-col space-y-1">
+                          <span className="text-xs text-muted-foreground">Active Users</span>
+                          <span className="text-sm font-mono font-semibold">{message.cardData.data.users}</span>
                         </div>
                       )}
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Gauge className="w-3 h-3" />
-                          Response
-                        </span>
-                        <span className="text-sm font-mono font-semibold text-primary">
-                          {message.cardData.data.responseTime}ms
-                        </span>
-                      </div>
                     </div>
-                  </div>
+                  )}
                   
-                  {/* Progress indicators */}
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Success Rate</span>
-                        <span className="font-semibold text-success">{message.cardData.data.successRate}%</span>
-                      </div>
-                      <Progress value={message.cardData.data.successRate} className="h-2" />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">System Load</span>
-                        <span className="font-semibold">45%</span>
-                      </div>
-                      <Progress value={45} className="h-2" />
-                    </div>
-                  </div>
-                  
-                  {/* Quick actions in card */}
-                  <div className="pt-3 border-t border-border/30">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
-                        <span className="text-xs text-muted-foreground">Last updated: Just now</span>
-                      </div>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs hover:bg-primary/10">
-                        <RefreshCw className="w-3 h-3 mr-1" />
-                        Refresh
-                      </Button>
+                  <div className="pt-2 border-t border-border/30">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Last updated</span>
+                      <span className="font-medium">Just now</span>
                     </div>
                   </div>
                 </>
@@ -1274,44 +1025,36 @@ I'll notify you when deployment completes.`,
                 />
               </div>
 
-              {/* Enhanced Header with persistent controls */}
-              <div className="relative flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 backdrop-blur-sm">
+              {/* Header */}
+              <div className="relative flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-primary/5 to-accent/5">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Avatar className="w-10 h-10 bg-gradient-to-r from-primary to-primary-glow shadow-lg ring-2 ring-primary/20">
+                    <Avatar className="w-10 h-10 bg-gradient-to-r from-primary to-primary-glow">
                       <AvatarFallback>
                         <Bot className="w-5 h-5 text-primary-foreground" />
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-card shadow-md flex items-center justify-center">
-                      <div className="w-2 h-2 bg-success-foreground rounded-full animate-pulse" />
-                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-card shadow-md" />
                   </div>
                   
                   <div>
                     <h3 className="font-semibold text-base flex items-center gap-2">
                       AI Control Center
-                      <Badge variant="secondary" className="text-xs bg-gradient-to-r from-primary/20 to-accent/20 border-primary/30">
+                      <Badge variant="secondary" className="text-xs bg-gradient-to-r from-primary/20 to-accent/20">
                         <Zap className="w-2.5 h-2.5 mr-1" />
-                        Enterprise
+                        Pro
                       </Badge>
                     </h3>
                     {!isMinimized && (
-                      <p className="text-xs text-muted-foreground flex items-center gap-2">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
-                          <span>Online</span>
-                        </div>
-                        <Separator orientation="vertical" className="h-3" />
-                        <span>Full Project Access</span>
-                        <Separator orientation="vertical" className="h-3" />
-                        <span>{PROJECT_DATA.meta.version}</span>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <span className="w-2 h-2 bg-success rounded-full animate-pulse" />
+                        Online • Real-time responses
                       </p>
                     )}
                   </div>
                 </div>
                 
-                {/* Always visible header controls */}
+                {/* Header Controls */}
                 <div className="flex items-center gap-1">
                   {!isMinimized && (
                     <>
@@ -1319,8 +1062,7 @@ I'll notify you when deployment completes.`,
                         variant="ghost"
                         size="sm"
                         onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
-                        className="h-8 w-8 p-0 hover:bg-primary/10"
-                        title="Toggle theme"
+                        className="h-8 w-8 p-0"
                       >
                         {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                       </Button>
@@ -1328,8 +1070,7 @@ I'll notify you when deployment completes.`,
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowSearch(!showSearch)}
-                        className="h-8 w-8 p-0 hover:bg-primary/10"
-                        title="Search conversations"
+                        className="h-8 w-8 p-0"
                       >
                         <Search className="w-4 h-4" />
                       </Button>
@@ -1337,8 +1078,7 @@ I'll notify you when deployment completes.`,
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowCommandPalette(true)}
-                        className="h-8 w-8 p-0 hover:bg-primary/10"
-                        title="Command palette (⌘K)"
+                        className="h-8 w-8 p-0"
                       >
                         <Command className="w-4 h-4" />
                       </Button>
@@ -1346,8 +1086,7 @@ I'll notify you when deployment completes.`,
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowReferencePanel(!showReferencePanel)}
-                        className="h-8 w-8 p-0 hover:bg-primary/10"
-                        title="Reference panel"
+                        className="h-8 w-8 p-0"
                       >
                         <Sidebar className="w-4 h-4" />
                       </Button>
@@ -1356,8 +1095,7 @@ I'll notify you when deployment completes.`,
                         variant="ghost"
                         size="sm"
                         onClick={resetChat}
-                        className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                        title="Reset conversation"
+                        className="h-8 w-8 p-0"
                       >
                         <RotateCcw className="w-4 h-4" />
                       </Button>
@@ -1368,8 +1106,7 @@ I'll notify you when deployment completes.`,
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="h-8 w-8 p-0 hover:bg-primary/10"
-                    title={isExpanded ? "Exit fullscreen" : "Enter fullscreen"}
+                    className="h-8 w-8 p-0"
                   >
                     <Expand className="w-4 h-4" />
                   </Button>
@@ -1378,19 +1115,16 @@ I'll notify you when deployment completes.`,
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsMinimized(!isMinimized)}
-                    className="h-8 w-8 p-0 hover:bg-primary/10"
-                    title={isMinimized ? "Maximize" : "Minimize"}
+                    className="h-8 w-8 p-0"
                   >
                     {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
                   </Button>
                   
-                  {/* Always visible close button */}
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsOpen(false)}
-                    className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive ml-1"
-                    title="Close chat"
+                    className="h-8 w-8 p-0"
                   >
                     <X className="w-4 h-4" />
                   </Button>
