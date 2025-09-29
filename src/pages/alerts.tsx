@@ -16,7 +16,15 @@ import {
   Edit,
   Trash2,
   Play,
-  Pause
+  Pause,
+  TrendingUp,
+  TrendingDown,
+  Zap,
+  Shield,
+  Users,
+  Globe,
+  Calendar,
+  Timer
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,60 +36,126 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const mockAlerts = [
   {
     id: 1,
-    name: 'High Error Rate',
-    description: 'Alert when error rate exceeds 5% in 5 minutes',
+    name: 'Critical Error Rate Alert',
+    description: 'Triggers when error rate exceeds 5% for 5+ minutes',
     status: 'active',
     severity: 'critical',
-    condition: 'error_rate > 5%',
+    condition: 'error_rate > 5% for 5m',
     lastTriggered: '2 hours ago',
-    triggerCount: 3
+    triggerCount: 8,
+    channel: 'slack,email',
+    responseTime: '45s',
+    falsePositives: 2
   },
   {
     id: 2,
-    name: 'Response Time SLA Breach',
-    description: 'P95 response time exceeds 1 second',
+    name: 'P95 Response Time SLA',
+    description: 'P95 response time exceeds 1000ms threshold',
     status: 'active',
     severity: 'warning',
-    condition: 'p95_response_time > 1000ms',
+    condition: 'p95_response_time > 1000ms for 3m',
     lastTriggered: '6 hours ago',
-    triggerCount: 1
+    triggerCount: 3,
+    channel: 'email',
+    responseTime: '2m 15s',
+    falsePositives: 0
   },
   {
     id: 3,
-    name: 'Webhook Endpoint Down',
-    description: 'Endpoint returning 5xx errors for 2+ minutes',
+    name: 'Webhook Endpoint Failure',
+    description: 'Multiple consecutive 5xx errors detected',
     status: 'paused',
     severity: 'critical',
-    condition: 'status_5xx_rate > 50%',
+    condition: 'status_5xx_count > 10 in 2m',
     lastTriggered: '1 day ago',
-    triggerCount: 8
+    triggerCount: 15,
+    channel: 'pagerduty,slack',
+    responseTime: '30s',
+    falsePositives: 1
+  },
+  {
+    id: 4,
+    name: 'Traffic Spike Detection',
+    description: 'Unusual traffic increase above baseline',
+    status: 'active',
+    severity: 'info',
+    condition: 'request_rate > baseline * 2',
+    lastTriggered: '30 minutes ago',
+    triggerCount: 5,
+    channel: 'slack',
+    responseTime: '1m 30s',
+    falsePositives: 0
+  },
+  {
+    id: 5,
+    name: 'SSL Certificate Expiry',
+    description: 'SSL certificate expires within 30 days',
+    status: 'active',
+    severity: 'warning',
+    condition: 'ssl_cert_expiry < 30d',
+    lastTriggered: 'Never',
+    triggerCount: 0,
+    channel: 'email',
+    responseTime: 'N/A',
+    falsePositives: 0
   }
 ];
 
 const mockIncidents = [
   {
     id: 1,
-    title: 'Payment Service Degradation',
+    title: 'Payment Service Critical Outage',
     severity: 'critical',
     status: 'active',
     startTime: new Date(Date.now() - 3600000),
-    affectedServices: ['payment-gateway', 'checkout-api'],
-    description: 'High latency and timeout rates detected'
+    affectedServices: ['payment-gateway', 'checkout-api', 'billing-service'],
+    description: 'Complete service failure with 100% error rate',
+    assignee: 'DevOps Team',
+    impact: 'High - All payment processing down',
+    actions: ['Rolled back deployment', 'Scaling up instances', 'Investigating root cause']
   },
   {
     id: 2,
-    title: 'Rate Limit Threshold Reached',
+    title: 'Database Performance Degradation',  
+    severity: 'warning',
+    status: 'investigating',
+    startTime: new Date(Date.now() - 7200000),
+    affectedServices: ['user-service', 'order-service'],
+    description: 'Query response times 300% above normal',
+    assignee: 'Database Team',
+    impact: 'Medium - Slower user experience',
+    actions: ['Identified slow queries', 'Optimizing indexes', 'Monitoring performance']
+  },
+  {
+    id: 3,
+    title: 'Rate Limiting Threshold Breach',
     severity: 'warning',
     status: 'resolved',
-    startTime: new Date(Date.now() - 7200000),
+    startTime: new Date(Date.now() - 10800000),
     resolvedTime: new Date(Date.now() - 1800000),
-    affectedServices: ['user-service'],
-    description: 'Temporary spike in traffic caused rate limiting'
+    affectedServices: ['api-gateway'],
+    description: 'Traffic spike caused temporary rate limiting',
+    assignee: 'Platform Team',
+    impact: 'Low - Some requests throttled',
+    actions: ['Increased rate limits', 'Added auto-scaling', 'Updated monitoring']
   }
+];
+
+const alertTrends = [
+  { time: '00:00', alerts: 2, resolved: 1 },
+  { time: '04:00', alerts: 1, resolved: 2 },
+  { time: '08:00', alerts: 4, resolved: 3 },
+  { time: '12:00', alerts: 6, resolved: 4 },
+  { time: '16:00', alerts: 3, resolved: 5 },
+  { time: '20:00', alerts: 2, resolved: 2 },
+  { time: '24:00', alerts: 1, resolved: 1 }
 ];
 
 export default function Alerts() {
@@ -93,6 +167,13 @@ export default function Alerts() {
     critical: 'bg-red-500',
     warning: 'bg-yellow-500',
     info: 'bg-blue-500'
+  };
+
+  const statusColors = {
+    active: 'bg-green-500',
+    paused: 'bg-gray-500',
+    investigating: 'bg-orange-500',
+    resolved: 'bg-blue-500'
   };
 
   const AlertCard = ({ alert }: { alert: any }) => (

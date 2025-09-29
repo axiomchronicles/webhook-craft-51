@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -25,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthStore } from '@/store/auth';
 import { useUIStore } from '@/store/ui';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { CommandSearch } from '@/components/ui/command-search';
 
 const breadcrumbMap: Record<string, string[]> = {
   '/': ['Dashboard'],
@@ -46,6 +48,7 @@ export function TopBar() {
   const location = useLocation();
   const { user, logout } = useAuthStore();
   const { environment, setEnvironment, openRightDrawer } = useUIStore();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   
   const breadcrumbs = breadcrumbMap[location.pathname] || ['Dashboard'];
 
@@ -85,7 +88,9 @@ export function TopBar() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search endpoints, deliveries... ⌘K"
-              className="pl-10 pr-4 bg-muted/50 border-border"
+              className="pl-10 pr-4 bg-muted/50 border-border cursor-pointer"
+              onClick={() => setIsSearchOpen(true)}
+              readOnly
             />
             <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 inline-flex items-center rounded border border-border px-1 font-mono text-[10px] font-medium text-muted-foreground">
               ⌘K
@@ -125,7 +130,12 @@ export function TopBar() {
           </DropdownMenu>
 
           {/* Command Palette Trigger */}
-          <Button variant="ghost" size="sm" className="gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="gap-2"
+            onClick={() => setIsSearchOpen(true)}
+          >
             <Command className="w-4 h-4" />
             <span className="hidden sm:inline">Commands</span>
           </Button>
@@ -188,6 +198,21 @@ export function TopBar() {
           </DropdownMenu>
         </div>
       </div>
+      
+      <CommandSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </header>
   );
+
+  // Add keyboard shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 }

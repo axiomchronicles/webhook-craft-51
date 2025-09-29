@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/auth';
 import { Sidebar } from './sidebar';
 import { TopBar } from './top-bar';
 import { RightDrawer } from './right-drawer';
+import { ChatBot } from '@/components/ui/chat-bot';
 
 export function AppShell() {
   const { sidebarCollapsed } = useUIStore();
@@ -46,6 +47,9 @@ export function AppShell() {
         {/* Right Drawer */}
         <RightDrawer />
       </div>
+
+      {/* Floating Chat Bot */}
+      <ChatBot />
     </div>
   );
 }
