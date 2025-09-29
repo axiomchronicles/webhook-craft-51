@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal as TerminalIcon, Copy, Clear, Download, Settings } from 'lucide-react';
+import { Terminal as TerminalIcon, Copy, Trash2, Download, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -238,7 +238,7 @@ export default function Terminal() {
             Copy Output
           </Button>
           <Button variant="outline" size="sm" onClick={clearTerminal} disabled={history.length === 0}>
-            <Clear className="w-4 h-4 mr-2" />
+            <Trash2 className="w-4 h-4 mr-2" />
             Clear
           </Button>
           <Button variant="outline" size="sm">

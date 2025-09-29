@@ -1,5 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { type ThemeProviderProps, type Theme } from "next-themes/dist/types"
+
+type Theme = "dark" | "light" | "system"
+
+type ThemeProviderProps = {
+  children: React.ReactNode
+  defaultTheme?: Theme
+  storageKey?: string
+}
 
 const ThemeProviderContext = createContext<{
   theme?: string

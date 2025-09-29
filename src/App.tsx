@@ -14,7 +14,9 @@ const Simulator = lazy(() => import("./pages/simulator"));
 const Pipelines = lazy(() => import("./pages/pipelines"));
 const Metrics = lazy(() => import("./pages/metrics"));
 const Terminal = lazy(() => import("./pages/terminal"));
-const Console = lazy(() => import("./pages/console"));
+const ConsoleComponent = lazy(() => import("./pages/console"));
+const Alerts = lazy(() => import("./pages/alerts"));
+const Teams = lazy(() => import("./pages/teams"));
 
 const queryClient = new QueryClient();
 
@@ -35,9 +37,9 @@ const App = () => (
             <Route path="pipelines" element={<Suspense fallback={<div>Loading...</div>}><Pipelines /></Suspense>} />
             <Route path="metrics" element={<Suspense fallback={<div>Loading...</div>}><Metrics /></Suspense>} />
             <Route path="terminal" element={<Suspense fallback={<div>Loading...</div>}><Terminal /></Suspense>} />
-            <Route path="console" element={<Suspense fallback={<div>Loading...</div>}><Console /></Suspense>} />
-            <Route path="alerts" element={<div className="p-6"><h1 className="text-2xl font-bold">Alerts</h1><p className="text-muted-foreground">Monitoring and SLO management</p></div>} />
-            <Route path="teams" element={<div className="p-6"><h1 className="text-2xl font-bold">Teams</h1><p className="text-muted-foreground">Team access and permissions</p></div>} />
+            <Route path="console" element={<Suspense fallback={<div>Loading...</div>}><ConsoleComponent /></Suspense>} />
+            <Route path="alerts" element={<Suspense fallback={<div>Loading...</div>}><Alerts /></Suspense>} />
+            <Route path="teams" element={<Suspense fallback={<div>Loading...</div>}><Teams /></Suspense>} />
             <Route path="integrations" element={<div className="p-6"><h1 className="text-2xl font-bold">Integrations</h1><p className="text-muted-foreground">External service connections</p></div>} />
             <Route path="audit" element={<div className="p-6"><h1 className="text-2xl font-bold">Audit</h1><p className="text-muted-foreground">Security and compliance logs</p></div>} />
             <Route path="billing" element={<div className="p-6"><h1 className="text-2xl font-bold">Billing</h1><p className="text-muted-foreground">Usage and billing management</p></div>} />

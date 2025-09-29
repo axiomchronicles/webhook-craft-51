@@ -54,14 +54,14 @@ export default function Simulator() {
     
     // Simulate webhook sending
     let completed = 0;
-    const timer = setInterval(() => {
+    const timer = window.setInterval(() => {
       completed++;
       setProgress((completed / requestCount) * 100);
       
       // Add mock result
       const newResult = {
         id: completed,
-        status: Math.random() > 0.2 ? 'success' : 'failed',
+        status: Math.random() > 0.2 ? 'success' : 'failed' as 'success' | 'failed',
         responseTime: Math.floor(Math.random() * 1000) + 50,
         timestamp: new Date(),
         statusCode: Math.random() > 0.2 ? 200 : 500,
@@ -70,7 +70,7 @@ export default function Simulator() {
       setResults(prev => [newResult, ...prev]);
       
       if (completed >= requestCount) {
-        clearInterval(timer);
+        window.clearInterval(timer);
         setIsRunning(false);
       }
     }, interval);

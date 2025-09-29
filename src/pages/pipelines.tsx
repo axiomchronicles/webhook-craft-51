@@ -10,7 +10,7 @@ import {
   Layers,
   ArrowRight,
   Filter,
-  Transform,
+  Shuffle,
   Database,
   Send,
   Edit,
@@ -66,7 +66,7 @@ const mockPipelines = [
 
 const nodeTypes = [
   { type: 'filter', icon: Filter, name: 'Filter', description: 'Filter events based on conditions' },
-  { type: 'transform', icon: Transform, name: 'Transform', description: 'Modify payload structure' },
+  { type: 'transform', icon: Shuffle, name: 'Transform', description: 'Modify payload structure' },
   { type: 'database', icon: Database, name: 'Database', description: 'Store or query data' },
   { type: 'webhook', icon: Send, name: 'Webhook', description: 'Send HTTP requests' },
 ];

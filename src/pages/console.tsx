@@ -14,7 +14,7 @@ import {
   XCircle,
   Clock,
   Settings,
-  Clear
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -282,7 +282,7 @@ export default function Console() {
             Export
           </Button>
           <Button variant="outline" size="sm" onClick={handleClear}>
-            <Clear className="w-4 h-4 mr-2" />
+            <Trash2 className="w-4 h-4 mr-2" />
             Clear
           </Button>
         </div>
@@ -334,7 +334,7 @@ export default function Console() {
                 <Checkbox
                   id="timestamps"
                   checked={showTimestamps}
-                  onCheckedChange={setShowTimestamps}
+                  onCheckedChange={(checked) => setShowTimestamps(checked === true)}
                 />
                 <label htmlFor="timestamps" className="text-sm">Timestamps</label>
               </div>
@@ -343,7 +343,7 @@ export default function Console() {
                 <Checkbox
                   id="autoscroll"
                   checked={autoScroll}
-                  onCheckedChange={setAutoScroll}
+                  onCheckedChange={(checked) => setAutoScroll(checked === true)}
                 />
                 <label htmlFor="autoscroll" className="text-sm">Auto-scroll</label>
               </div>

@@ -365,7 +365,7 @@ export default function Metrics() {
                   <div className="space-y-3">
                     <div>
                       <div className="flex justify-between mb-1">
-                        <span className="text-sm">Avg < 200ms</span>
+                        <span className="text-sm">Avg response under 200ms</span>
                         <span className="text-sm text-success">✓</span>
                       </div>
                       <div className="w-full bg-muted rounded-full h-2">
@@ -374,7 +374,7 @@ export default function Metrics() {
                     </div>
                     <div>
                       <div className="flex justify-between mb-1">
-                        <span className="text-sm">P95 < 500ms</span>
+                        <span className="text-sm">P95 under 500ms</span>
                         <span className="text-sm text-success">✓</span>
                       </div>
                       <div className="w-full bg-muted rounded-full h-2">
@@ -413,7 +413,7 @@ export default function Metrics() {
                     </div>
                     <div className="text-right">
                       <p className="font-bold">{error.count}</p>
-                      <p className="text-xs text-muted-foreground">{error.percentage}%</p>
+                      <p className="text-xs text-muted-foreground">{error.percentage + "%"}</p>
                     </div>
                   </div>
                 ))}
@@ -452,11 +452,11 @@ export default function Metrics() {
                       </div>
                       <div>
                         <p className="text-muted-foreground">Success Rate</p>
-                        <p className="font-medium text-success">{Math.floor(98 + Math.random())}%</p>
+                        <p className="font-medium text-success">{Math.floor(98 + Math.random()) + "%"}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Avg Response</p>
-                      <p className="font-medium">{Math.floor(120 + Math.random() * 100)}ms</p>
+                      <p className="font-medium">{Math.floor(120 + Math.random() * 100) + "ms"}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Last Active</p>
