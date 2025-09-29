@@ -179,20 +179,176 @@ const QUICK_SUGGESTIONS = [
   "Deploy changes",
   "View logs",
   "Restart service",
-  "Check database health"
+  "Check database health",
+  "API health check",
+  "Memory usage",
+  "Network diagnostics",
+  "Security audit",
+  "Backup status"
 ];
+
+// Enhanced response system
+const getContextualResponse = (input: string): any => {
+  const lowerInput = input.toLowerCase();
+  
+  // System status queries
+  if (lowerInput.includes('status') || lowerInput.includes('health')) {
+    return {
+      content: `**🟢 System Status: HEALTHY**
+
+\`\`\`json
+{
+  "overall_status": "operational",
+  "uptime": "99.94%",
+  "active_endpoints": 47,
+  "success_rate": "99.2%",
+  "avg_response_time": "142ms",
+  "last_deployment": "2 hours ago",
+  "active_users": 1247,
+  "storage_usage": "67%",
+  "memory_usage": "45%"
+}
+\`\`\`
+
+**🔍 Quick Insights:**
+• All core services are operational
+• Response times are within optimal range
+• No critical alerts in the last 24h
+• Recent deployment successful
+
+Need more details on any specific area?`,
+      suggestions: ["View detailed metrics", "Check individual services", "See recent deployments"],
+      actions: [
+        { id: 'metrics', label: 'Full Metrics', icon: <BarChart3 className="w-3 h-3" /> },
+        { id: 'console', label: 'System Console', icon: <Terminal className="w-3 h-3" /> }
+      ],
+      cardData: {
+        type: 'status',
+        title: 'Live System Health',
+        data: { status: 'healthy', endpoints: 47, uptime: '99.94%', users: 1247 }
+      }
+    };
+  }
+  
+  // Performance queries
+  if (lowerInput.includes('performance') || lowerInput.includes('metrics')) {
+    return {
+      content: `**📊 Performance Analytics**
+
+| **Metric** | **Current** | **Target** | **Trend** |
+|------------|-------------|------------|-----------|
+| **Throughput** | 1,247/hr | 1,000/hr | 📈 +24% |
+| **Error Rate** | 0.8% | <2% | 📉 -0.3% |
+| **Avg Latency** | 142ms | <200ms | 📉 -15ms |
+| **Success Rate** | 99.2% | >98% | 📈 +0.5% |
+
+**🎯 Performance Insights:**
+• **Peak hours:** 2-4 PM EST (1,800+ req/hr)
+• **Fastest endpoint:** \`/webhooks/stripe\` (89ms avg)
+• **Slowest endpoint:** \`/webhooks/legacy\` (340ms avg)
+• **Most active:** Payment webhooks (45% of traffic)
+
+**🔧 Recommendations:**
+1. Consider caching for legacy endpoints
+2. Scale up during peak hours
+3. Monitor payment webhook stability`,
+      suggestions: ["Optimize slow endpoints", "Scale recommendations", "Set up alerts"],
+      actions: [
+        { id: 'optimize', label: 'Auto-Optimize', variant: 'default' as const },
+        { id: 'scale', label: 'Scale Up', variant: 'outline' as const }
+      ]
+    };
+  }
+  
+  // Alert queries
+  if (lowerInput.includes('alert') || lowerInput.includes('error') || lowerInput.includes('issue')) {
+    return {
+      content: `**🚨 Recent Alerts & Issues**
+
+\`\`\`yaml
+ACTIVE ALERTS: 2
+RESOLVED TODAY: 7
+CRITICAL: 0
+\`\`\`
+
+**⚠️ Active Issues:**
+1. **SSL Certificate Expiry Warning**
+   - Endpoint: \`api.legacy-partner.com\`
+   - Expires: 7 days
+   - Impact: Medium
+   - Action: Update certificate
+
+2. **High Memory Usage**
+   - Service: webhook-processor
+   - Usage: 89%
+   - Duration: 2 hours
+   - Action: Scale or restart
+
+**✅ Recently Resolved:**
+• Database connection timeout (12:30 PM)
+• Rate limiting on payment APIs (11:45 AM)
+• S3 upload failures (10:20 AM)
+
+All critical systems are stable. Would you like me to take action on any alerts?`,
+      suggestions: ["Fix SSL certificate", "Restart high memory service", "View alert history"],
+      actions: [
+        { id: 'fix-ssl', label: 'Update SSL', variant: 'default' as const },
+        { id: 'restart-service', label: 'Restart Service', variant: 'outline' as const }
+      ]
+    };
+  }
+  
+  // Deployment queries
+  if (lowerInput.includes('deploy') || lowerInput.includes('release')) {
+    return {
+      content: `**🚀 Deployment Status**
+
+**Latest Deployment:**
+\`\`\`bash
+✅ webhook-service:v2.4.1
+   Deployed: 2 hours ago
+   Status: Successful
+   Rollout: 100% complete
+   Health: All checks passed
+\`\`\`
+
+**📋 Recent Deployments:**
+• **v2.4.1** - SSL improvements, bug fixes
+• **v2.4.0** - New webhook validation system  
+• **v2.3.9** - Performance optimizations
+• **v2.3.8** - Security patches
+
+**🎯 Available Actions:**
+• Deploy latest staging changes
+• Rollback to previous version
+• Schedule automated deployment
+• View deployment pipeline
+
+Ready to deploy? I can handle the entire process for you.`,
+      suggestions: ["Deploy staging", "View pipeline", "Schedule deployment"],
+      actions: [
+        { id: 'deploy-staging', label: 'Deploy Now', variant: 'default' as const },
+        { id: 'schedule', label: 'Schedule', variant: 'outline' as const }
+      ]
+    };
+  }
+  
+  // Default response for general queries
+  return DEVELOPER_RESPONSES[Math.floor(Math.random() * DEVELOPER_RESPONSES.length)];
+};
 
 export function NextGenChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       type: 'bot',
-      content: "👋 **Welcome to your AI Control Center!**\n\nI'm your intelligent webhook assistant with complete system access. I can help you monitor, troubleshoot, and manage your entire infrastructure.\n\n**What I can do:**\n- 🔍 Analyze system performance\n- 🚀 Execute commands and deployments  \n- 📊 Provide real-time insights\n- ⚡ Navigate you to relevant pages\n- 🛠️ Troubleshoot issues proactively\n\nTry a command like `/status` or ask me anything!",
+      content: "👋 **Welcome to your AI Control Center!**\n\nI'm your intelligent webhook assistant with complete system access. I can help you monitor, troubleshoot, and manage your entire infrastructure.\n\n**What I can do:**\n- 🔍 Analyze system performance & health checks\n- 🚀 Execute commands and deployments seamlessly\n- 📊 Provide real-time insights & analytics\n- ⚡ Navigate you to relevant pages instantly\n- 🛠️ Troubleshoot issues proactively\n- 📋 Generate detailed reports & summaries\n- 🔧 Manage configurations & settings\n\n**Quick Commands:**\n- `/status` - System health overview\n- `/deploy` - Initiate deployment\n- `/logs` - View system logs\n- `/metrics` - Performance analytics\n\nTry asking me anything or select a suggestion below!",
       timestamp: new Date(),
-      suggestions: QUICK_SUGGESTIONS.slice(0, 4)
+      suggestions: QUICK_SUGGESTIONS.slice(0, 6)
     }
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -206,6 +362,7 @@ export function NextGenChatBot() {
   const [showReferencePanel, setShowReferencePanel] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
   const [selectedHistory, setSelectedHistory] = useState<string | null>(null);
+  const [showQuickActions, setShowQuickActions] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -259,6 +416,9 @@ export function NextGenChatBot() {
   const handleSendMessage = async (content: string = inputValue) => {
     if (!content.trim()) return;
 
+    // Hide welcome suggestions after first message
+    setShowWelcome(false);
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user', 
@@ -276,9 +436,9 @@ export function NextGenChatBot() {
       return;
     }
 
-    // Simulate AI response
+    // Simulate AI response with enhanced logic
     setTimeout(() => {
-      const response = DEVELOPER_RESPONSES[Math.floor(Math.random() * DEVELOPER_RESPONSES.length)];
+      const response = getContextualResponse(content.trim());
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
@@ -293,7 +453,8 @@ export function NextGenChatBot() {
         cardData: response.cardData,
         metadata: {
           processingTime: 145 + Math.random() * 100,
-          confidence: 0.85 + Math.random() * 0.1
+          confidence: 0.85 + Math.random() * 0.1,
+          source: 'AI Assistant'
         }
       };
       
@@ -513,36 +674,59 @@ I'll notify you when deployment completes.`,
       key={message.id}
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      className={`flex gap-3 group ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+      className={`flex gap-4 group ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
     >
-      <Avatar className="w-8 h-8 flex-shrink-0">
-        <AvatarFallback className={`
-          ${message.type === 'bot' 
-            ? 'bg-gradient-to-r from-primary to-primary-glow text-primary-foreground' 
-            : message.type === 'system'
-            ? 'bg-warning/20 text-warning'
-            : 'bg-muted'
-          }
-        `}>
-          {message.type === 'bot' ? (
-            <Bot className="w-4 h-4" />
-          ) : message.type === 'system' ? (
-            <Terminal className="w-4 h-4" />
-          ) : (
-            <User className="w-4 h-4" />
-          )}
-        </AvatarFallback>
-      </Avatar>
+      {/* Enhanced Avatar */}
+      <div className="flex-shrink-0">
+        <Avatar className="w-9 h-9 ring-2 ring-background shadow-sm">
+          <AvatarFallback className={`
+            ${message.type === 'bot' 
+              ? 'bg-gradient-to-br from-primary via-primary-hover to-primary-glow text-primary-foreground shadow-inner' 
+              : message.type === 'system'
+              ? 'bg-gradient-to-br from-warning/20 to-warning/10 text-warning border border-warning/30'
+              : 'bg-gradient-to-br from-muted to-muted/50 text-muted-foreground'
+            }
+          `}>
+            {message.type === 'bot' ? (
+              <Bot className="w-4 h-4" />
+            ) : message.type === 'system' ? (
+              <Terminal className="w-4 h-4" />
+            ) : (
+              <User className="w-4 h-4" />
+            )}
+          </AvatarFallback>
+        </Avatar>
+        
+        {/* Status indicator for bot */}
+        {message.type === 'bot' && (
+          <div className="w-3 h-3 bg-success rounded-full border-2 border-background -mt-2 ml-6 shadow-sm animate-pulse" />
+        )}
+      </div>
       
-      <div className={`flex flex-col max-w-[85%] ${message.type === 'user' ? 'items-end' : 'items-start'}`}>
-        {/* Message Content */}
+      <div className={`flex flex-col max-w-[82%] min-w-0 ${message.type === 'user' ? 'items-end' : 'items-start'}`}>
+        {/* Message header with metadata */}
+        <div className={`flex items-center gap-2 mb-1 ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+          <span className="text-xs font-medium text-foreground">
+            {message.type === 'bot' ? 'AI Assistant' : message.type === 'system' ? 'System' : 'You'}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+          {message.metadata?.confidence && (
+            <Badge variant="outline" className="text-xs px-1.5 py-0">
+              {Math.round(message.metadata.confidence * 100)}% confidence
+            </Badge>
+          )}
+        </div>
+
+        {/* Enhanced Message Content */}
         <div className={`
-          relative rounded-2xl px-4 py-3 text-sm
+          relative rounded-2xl px-5 py-4 text-sm shadow-sm border transition-all duration-200 hover:shadow-md
           ${message.type === 'user' 
-            ? 'bg-chat-bubble-user text-chat-bubble-user-foreground' 
+            ? 'bg-gradient-to-br from-primary to-primary-hover text-primary-foreground border-primary/20 shadow-primary/10' 
             : message.type === 'system'
-            ? 'bg-warning/10 text-warning border border-warning/20'
-            : 'bg-chat-bubble-bot text-chat-bubble-bot-foreground border border-border'
+            ? 'bg-gradient-to-br from-warning/5 to-warning/10 text-warning border-warning/20 shadow-warning/5'
+            : 'bg-gradient-to-br from-card to-card/50 text-card-foreground border-border/50 shadow-card/5'
           }
         `}>
           <ReactMarkdown
@@ -595,37 +779,53 @@ I'll notify you when deployment completes.`,
             {message.content}
           </ReactMarkdown>
           
-          {/* Message Actions */}
-          <div className="absolute -right-12 top-0 opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="flex flex-col gap-1">
+          {/* Enhanced Message Actions */}
+          <div className="absolute -right-14 top-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+            <div className="flex flex-col gap-1 bg-background/80 backdrop-blur-sm rounded-lg p-1 shadow-lg border border-border/50">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0"
+                className="h-7 w-7 p-0 hover:bg-primary/10"
                 onClick={() => copyToClipboard(message.content)}
+                title="Copy message"
               >
                 <Copy className="w-3 h-3" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0"
+                className="h-7 w-7 p-0 hover:bg-success/10"
                 onClick={() => addReaction(message.id, '👍')}
+                title="Like message"
               >
                 <ThumbsUp className="w-3 h-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 hover:bg-muted"
+                onClick={() => {}}
+                title="More actions"
+              >
+                <MoreHorizontal className="w-3 h-3" />
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Metadata */}
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-muted-foreground">
-            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
+        {/* Enhanced Metadata */}
+        <div className="flex items-center gap-3 mt-2">
           {message.metadata?.processingTime && (
-            <Badge variant="outline" className="text-xs">
-              {Math.round(message.metadata.processingTime)}ms
+            <div className="flex items-center gap-1">
+              <Clock className="w-3 h-3 text-muted-foreground" />
+              <Badge variant="outline" className="text-xs bg-muted/30">
+                {Math.round(message.metadata.processingTime)}ms
+              </Badge>
+            </div>
+          )}
+          {message.metadata?.source && (
+            <Badge variant="secondary" className="text-xs">
+              {message.metadata.source}
             </Badge>
           )}
         </div>
@@ -669,17 +869,36 @@ I'll notify you when deployment completes.`,
           </div>
         )}
 
-        {/* Suggestions */}
-        {message.suggestions && (
-          <div className="flex flex-wrap gap-2 mt-2 max-w-full">
+        {/* Enhanced Suggestions */}
+        {message.suggestions && showWelcome && (
+          <div className="flex flex-wrap gap-2 mt-3 max-w-full">
             {message.suggestions.map((suggestion, index) => (
               <motion.button
                 key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ delay: index * 0.1, type: "spring", stiffness: 300 }}
+                onClick={() => handleSendMessage(suggestion)}
+                className="group text-xs px-4 py-2 bg-gradient-to-r from-chat-quick-reply to-chat-quick-reply-hover text-foreground rounded-full border border-border/30 hover:border-primary/40 hover:shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                {suggestion}
+              </motion.button>
+            ))}
+          </div>
+        )}
+
+        {/* Contextual suggestions for ongoing conversation */}
+        {message.suggestions && !showWelcome && message.type === 'bot' && (
+          <div className="flex flex-wrap gap-2 mt-3 max-w-full">
+            {message.suggestions.slice(0, 3).map((suggestion, index) => (
+              <motion.button
+                key={index}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
                 onClick={() => handleSendMessage(suggestion)}
-                className="text-xs px-3 py-1 bg-chat-quick-reply text-foreground rounded-full hover:bg-chat-quick-reply-hover transition-colors"
+                className="text-xs px-3 py-1.5 bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg border border-border/30 hover:border-primary/30 transition-all duration-200"
               >
                 {suggestion}
               </motion.button>
@@ -687,33 +906,54 @@ I'll notify you when deployment completes.`,
           </div>
         )}
 
-        {/* Card Data */}
+        {/* Enhanced Card Data */}
         {message.cardData && (
-          <Card className="mt-2 max-w-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">{message.cardData.title}</CardTitle>
+          <Card className="mt-3 max-w-md border-border/50 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <CardHeader className="pb-3 bg-gradient-to-r from-muted/20 to-muted/10">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-primary" />
+                {message.cardData.title}
+              </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
+            <CardContent className="pt-0 space-y-3">
               {message.cardData.type === 'status' && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Status</span>
-                    <Badge variant="secondary" className="bg-success/10 text-success">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      {message.cardData.data.status}
-                    </Badge>
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-xs text-muted-foreground">Status</span>
+                      <Badge variant="secondary" className="bg-success/10 text-success w-fit">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        {message.cardData.data.status}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-xs text-muted-foreground">Uptime</span>
+                      <span className="text-sm font-mono font-semibold">{message.cardData.data.uptime}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Uptime</span>
-                    <span className="text-xs font-mono">{message.cardData.data.uptime}</span>
-                  </div>
+                  
                   {message.cardData.data.endpoints && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Endpoints</span>
-                      <span className="text-xs font-mono">{message.cardData.data.endpoints}</span>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col space-y-1">
+                        <span className="text-xs text-muted-foreground">Endpoints</span>
+                        <span className="text-sm font-mono font-semibold">{message.cardData.data.endpoints}</span>
+                      </div>
+                      {message.cardData.data.users && (
+                        <div className="flex flex-col space-y-1">
+                          <span className="text-xs text-muted-foreground">Active Users</span>
+                          <span className="text-sm font-mono font-semibold">{message.cardData.data.users}</span>
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
+                  
+                  <div className="pt-2 border-t border-border/30">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Last updated</span>
+                      <span className="font-medium">Just now</span>
+                    </div>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
@@ -893,51 +1133,96 @@ I'll notify you when deployment completes.`,
 
               {!isMinimized && (
                 <CardContent className="p-0 flex flex-col h-full">
-                  {/* Search Bar */}
+                  {/* Enhanced Search Bar */}
                   <AnimatePresence>
                     {showSearch && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="p-3 border-b border-border bg-muted/30"
+                        className="p-4 border-b border-border bg-gradient-to-r from-muted/20 to-muted/10"
                       >
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                           <Input
-                            placeholder="Search messages..."
+                            placeholder="Search conversations, commands, or topics..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10 h-8"
+                            className="pl-10 h-9 bg-background/50 border-border/50 focus:border-primary/50"
                           />
+                          {searchQuery && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSearchQuery('')}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 p-0"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          )}
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  {/* Messages Area */}
+                  {/* Enhanced Quick Actions Bar */}
+                  {showQuickActions && messages.length <= 1 && (
+                    <div className="p-3 border-b border-border/30 bg-gradient-to-r from-primary/5 to-accent/5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Zap className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-medium">Quick Actions</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { label: "System Health", icon: <CheckCircle className="w-3 h-3" />, command: "/status" },
+                          { label: "View Logs", icon: <FileText className="w-3 h-3" />, command: "/logs" },
+                          { label: "Deploy", icon: <Play className="w-3 h-3" />, command: "/deploy" },
+                          { label: "Metrics", icon: <BarChart3 className="w-3 h-3" />, command: "/metrics" }
+                        ].map((action, index) => (
+                          <Button
+                            key={index}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleSendMessage(action.command)}
+                            className="h-7 text-xs hover:bg-primary/10 hover:border-primary/30"
+                          >
+                            {action.icon}
+                            {action.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Enhanced Messages Area */}
                   <ScrollArea className="flex-1 px-4 py-4">
                     <div className="space-y-6">
                       {filteredMessages.map(renderMessage)}
                       
-                      {/* Typing Indicator */}
+                      {/* Enhanced Typing Indicator */}
                       {isTyping && (
                         <motion.div
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="flex gap-3"
+                          className="flex gap-4"
                         >
-                          <Avatar className="w-8 h-8">
-                            <AvatarFallback className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-                              <Bot className="w-4 h-4" />
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="bg-chat-bubble-bot border border-border rounded-2xl px-4 py-3">
+                          <div className="flex-shrink-0">
+                            <Avatar className="w-9 h-9 ring-2 ring-background shadow-sm">
+                              <AvatarFallback className="bg-gradient-to-br from-primary to-primary-glow text-primary-foreground">
+                                <Bot className="w-4 h-4" />
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <div className="bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-2xl px-5 py-4 shadow-sm">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-medium">AI Assistant</span>
+                              <span className="text-xs text-muted-foreground">is thinking...</span>
+                            </div>
                             <motion.div className="flex space-x-1">
                               {[0, 1, 2].map((i) => (
                                 <motion.div
                                   key={i}
-                                  className="w-2 h-2 bg-muted-foreground rounded-full"
+                                  className="w-2 h-2 bg-primary/60 rounded-full"
                                   animate={{ y: [0, -8, 0] }}
                                   transition={{
                                     duration: 0.6,
@@ -954,43 +1239,63 @@ I'll notify you when deployment completes.`,
                     </div>
                   </ScrollArea>
 
-                  {/* Input Area */}
-                  <div className="p-4 border-t border-border bg-gradient-to-r from-background/50 to-muted/30">
-                    <div className="flex gap-2 items-end">
+                  {/* Enhanced Input Area */}
+                  <div className="p-4 border-t border-border bg-gradient-to-r from-background/80 to-muted/20 backdrop-blur-sm">
+                    <div className="flex gap-3 items-end">
                       <div className="flex-1">
                         <Textarea
                           ref={inputRef}
                           value={inputValue}
                           onChange={(e) => setInputValue(e.target.value)}
                           onKeyDown={handleKeyPress}
-                          placeholder="Ask me anything about your system, or try /status, /deploy, /logs..."
-                          className="min-h-[2.5rem] max-h-32 resize-none"
+                          placeholder={isTyping ? "AI is responding..." : "Ask me anything about your system, or try /status, /deploy, /logs..."}
+                          className="min-h-[2.5rem] max-h-32 resize-none bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background transition-all duration-200"
                           rows={1}
                           disabled={isTyping}
                         />
-                        <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center justify-between mt-3">
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={toggleVoice}
-                              className={`h-7 w-7 p-0 ${isListening ? 'bg-destructive/10 text-destructive' : ''}`}
+                              className={`h-8 w-8 p-0 rounded-full transition-all duration-200 ${
+                                isListening ? 'bg-destructive/10 text-destructive hover:bg-destructive/20' : 'hover:bg-primary/10'
+                              }`}
                             >
-                              {isListening ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
+                              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => setIsMuted(!isMuted)}
-                              className={`h-7 w-7 p-0 ${isMuted ? 'bg-muted text-muted-foreground' : ''}`}
+                              className={`h-8 w-8 p-0 rounded-full transition-all duration-200 ${
+                                isMuted ? 'bg-muted text-muted-foreground' : 'hover:bg-primary/10'
+                              }`}
                             >
-                              {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
+                              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                            </Button>
+                            <Separator orientation="vertical" className="h-4 mx-1" />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => inputRef.current?.focus()}
+                              className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              <Command className="w-3 h-3 mr-1" />
+                              Focus
                             </Button>
                           </div>
                           
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">⌘K</kbd>
-                            <span>for commands</span>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <kbd className="px-2 py-1 bg-muted/50 rounded text-xs border border-border/30">⌘K</kbd>
+                              <span>commands</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <kbd className="px-2 py-1 bg-muted/50 rounded text-xs border border-border/30">↵</kbd>
+                              <span>send</span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -999,9 +1304,18 @@ I'll notify you when deployment completes.`,
                         onClick={() => handleSendMessage()}
                         disabled={!inputValue.trim() || isTyping}
                         size="sm"
-                        className="h-10 w-10 p-0 rounded-full bg-gradient-to-r from-primary to-primary-hover hover:shadow-lg transition-all duration-200"
+                        className="h-11 w-11 p-0 rounded-full bg-gradient-to-r from-primary to-primary-hover hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                       >
-                        <Send className="w-4 h-4" />
+                        {isTyping ? (
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          >
+                            <Sparkles className="w-4 h-4" />
+                          </motion.div>
+                        ) : (
+                          <Send className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
                   </div>
