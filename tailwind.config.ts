@@ -77,6 +77,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        chat: {
+          background: "hsl(var(--chat-background))",
+          pattern: "hsl(var(--chat-pattern))",
+          "bubble-user": "hsl(var(--chat-bubble-user))",
+          "bubble-bot": "hsl(var(--chat-bubble-bot))",
+          "bubble-user-foreground": "hsl(var(--chat-bubble-user-foreground))",
+          "bubble-bot-foreground": "hsl(var(--chat-bubble-bot-foreground))",
+          action: "hsl(var(--chat-action))",
+          "action-hover": "hsl(var(--chat-action-hover))",
+          "quick-reply": "hsl(var(--chat-quick-reply))",
+          "quick-reply-hover": "hsl(var(--chat-quick-reply-hover))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -100,10 +112,59 @@ export default {
             height: "0",
           },
         },
+        "message-slide-in": {
+          from: {
+            opacity: "0",
+            transform: "translateY(20px) scale(0.95)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0) scale(1)",
+          },
+        },
+        "typing-bounce": {
+          "0%, 60%, 100%": {
+            transform: "translateY(0)",
+          },
+          "30%": {
+            transform: "translateY(-10px)",
+          },
+        },
+        "bot-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 0 0 0 hsl(var(--primary) / 0.7)",
+            transform: "scale(1)",
+          },
+          "50%": {
+            boxShadow: "0 0 0 8px hsl(var(--primary) / 0)",
+            transform: "scale(1.05)",
+          },
+        },
+        "circuit-flow": {
+          "0%": {
+            backgroundPosition: "0% 0%",
+          },
+          "100%": {
+            backgroundPosition: "100% 100%",
+          },
+        },
+        "gradient-shift": {
+          "0%, 100%": {
+            backgroundPosition: "0% 50%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "message-slide-in": "message-slide-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+        "typing-bounce": "typing-bounce 1.4s infinite",
+        "bot-pulse": "bot-pulse 2s infinite",
+        "circuit-flow": "circuit-flow 20s linear infinite",
+        "gradient-shift": "gradient-shift 3s ease-in-out infinite",
       },
     },
   },

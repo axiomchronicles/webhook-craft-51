@@ -84,6 +84,18 @@
     --shadow-lg: 0 10px 15px -3px hsl(220 9% 15% / 0.1), 0 4px 6px -2px hsl(220 9% 15% / 0.05);
     --shadow-glow: 0 0 40px hsl(var(--primary) / 0.3);
 
+    /* Chat-Specific Colors */
+    --chat-background: 220 13% 98%;
+    --chat-pattern: 220 9% 94%;
+    --chat-bubble-user: 220 90% 56%;
+    --chat-bubble-bot: 0 0% 100%;
+    --chat-bubble-user-foreground: 0 0% 100%;
+    --chat-bubble-bot-foreground: 220 9% 15%;
+    --chat-action: 220 90% 56%;
+    --chat-action-hover: 220 90% 50%;
+    --chat-quick-reply: 220 13% 95%;
+    --chat-quick-reply-hover: 220 13% 90%;
+
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -166,6 +178,18 @@
     --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -1px hsl(0 0% 0% / 0.2);
     --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -2px hsl(0 0% 0% / 0.2);
     --shadow-glow: 0 0 40px hsl(var(--primary) / 0.4);
+
+    /* Chat-Specific Colors - Dark Theme */
+    --chat-background: 222 47% 6%;
+    --chat-pattern: 222 47% 8%;
+    --chat-bubble-user: 220 90% 66%;
+    --chat-bubble-bot: 222 47% 10%;
+    --chat-bubble-user-foreground: 222 47% 4%;
+    --chat-bubble-bot-foreground: 220 9% 95%;
+    --chat-action: 220 90% 66%;
+    --chat-action-hover: 220 90% 70%;
+    --chat-quick-reply: 222 47% 12%;
+    --chat-quick-reply-hover: 222 47% 16%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -346,5 +370,55 @@
   }
   50% {
     opacity: 1;
+  }
+}
+
+/* Chat-specific animations */
+@keyframes message-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes typing-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes bot-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes circuit-flow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 100%;
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
 }
