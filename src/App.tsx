@@ -8,11 +8,20 @@ import Dashboard from "./pages/dashboard";
 import Endpoints from "./pages/endpoints";
 import Deliveries from "./pages/deliveries";
 import NotFound from "./pages/NotFound";
+import { lazy, Suspense } from "react";
+
+const Simulator = lazy(() => import("./pages/simulator"));
+const Pipelines = lazy(() => import("./pages/pipelines"));
+const Metrics = lazy(() => import("./pages/metrics"));
+const Terminal = lazy(() => import("./pages/terminal"));
+const Console = lazy(() => import("./pages/console"));
 
 const queryClient = new QueryClient();
 
+import { ThemeProvider } from "./components/theme-provider";
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -22,9 +31,11 @@ const App = () => (
             <Route index element={<Dashboard />} />
             <Route path="endpoints" element={<Endpoints />} />
             <Route path="deliveries" element={<Deliveries />} />
-            <Route path="simulator" element={<div className="p-6"><h1 className="text-2xl font-bold">Simulator</h1><p className="text-muted-foreground">Webhook testing and simulation tools</p></div>} />
-            <Route path="pipelines" element={<div className="p-6"><h1 className="text-2xl font-bold">Pipelines</h1><p className="text-muted-foreground">Data transformation and routing</p></div>} />
-            <Route path="metrics" element={<div className="p-6"><h1 className="text-2xl font-bold">Metrics</h1><p className="text-muted-foreground">Analytics and performance insights</p></div>} />
+            <Route path="simulator" element={<Suspense fallback={<div>Loading...</div>}><Simulator /></Suspense>} />
+            <Route path="pipelines" element={<Suspense fallback={<div>Loading...</div>}><Pipelines /></Suspense>} />
+            <Route path="metrics" element={<Suspense fallback={<div>Loading...</div>}><Metrics /></Suspense>} />
+            <Route path="terminal" element={<Suspense fallback={<div>Loading...</div>}><Terminal /></Suspense>} />
+            <Route path="console" element={<Suspense fallback={<div>Loading...</div>}><Console /></Suspense>} />
             <Route path="alerts" element={<div className="p-6"><h1 className="text-2xl font-bold">Alerts</h1><p className="text-muted-foreground">Monitoring and SLO management</p></div>} />
             <Route path="teams" element={<div className="p-6"><h1 className="text-2xl font-bold">Teams</h1><p className="text-muted-foreground">Team access and permissions</p></div>} />
             <Route path="integrations" element={<div className="p-6"><h1 className="text-2xl font-bold">Integrations</h1><p className="text-muted-foreground">External service connections</p></div>} />
@@ -39,6 +50,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+</ThemeProvider>
 );
 
 export default App;

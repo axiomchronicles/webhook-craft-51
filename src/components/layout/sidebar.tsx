@@ -14,7 +14,9 @@ import {
   FileText,
   CreditCard,
   Shield,
-  Menu
+  Menu,
+  Terminal,
+  MonitorSpeaker
 } from 'lucide-react';
 import { useUIStore } from '@/store/ui';
 import { Button } from '@/components/ui/button';
@@ -92,6 +94,18 @@ const navigationItems = [
     href: '/compliance',
     icon: Shield,
     description: 'GDPR and SOC2'
+  },
+  {
+    title: 'Terminal',
+    href: '/terminal',
+    icon: Terminal,
+    description: 'Command-line interface'
+  },
+  {
+    title: 'Console',
+    href: '/console',
+    icon: MonitorSpeaker,
+    description: 'Live system logs'
   },
   {
     title: 'Settings',
