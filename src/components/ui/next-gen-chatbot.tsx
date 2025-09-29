@@ -515,9 +515,7 @@ I'll notify you when deployment completes.`,
       animate={{ opacity: 1, y: 0, scale: 1 }}
       className={`flex gap-3 group ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
     >
-      <Avatar className={`w-8 h-8 flex-shrink-0 ${
-        message.type === 'bot' ? 'animate-bot-pulse' : ''
-      }`}>
+      <Avatar className="w-8 h-8 flex-shrink-0">
         <AvatarFallback className={`
           ${message.type === 'bot' 
             ? 'bg-gradient-to-r from-primary to-primary-glow text-primary-foreground' 
@@ -553,26 +551,41 @@ I'll notify you when deployment completes.`,
                 const match = /language-(\w+)/.exec(className || '');
                 const isInline = !match;
                 return !isInline && match ? (
-                  <div className="relative mt-2">
-                    <SyntaxHighlighter
-                      style={isDarkMode ? oneDark : oneLight}
-                      language={match[1]}
-                      PreTag="div"
-                      className="rounded-md text-xs"
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute top-2 right-2 h-6 w-6 p-0"
-                      onClick={() => copyToClipboard(String(children))}
-                    >
-                      <Copy className="w-3 h-3" />
-                    </Button>
-                  </div>
+                  <Card className="relative mt-3 overflow-hidden border border-border/50 bg-muted/30">
+                    <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-muted/50 to-muted/30 border-b border-border/30">
+                      <div className="flex items-center gap-2">
+                        <Code className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{match[1]}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 hover:bg-background/50"
+                        onClick={() => copyToClipboard(String(children))}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    </div>
+                    <div className="relative">
+                      <SyntaxHighlighter
+                        style={isDarkMode ? oneDark : oneLight}
+                        language={match[1]}
+                        PreTag="div"
+                        className="text-sm !bg-transparent !p-4"
+                        customStyle={{
+                          background: 'transparent',
+                          margin: 0,
+                          padding: '1rem',
+                          fontSize: '0.875rem',
+                          lineHeight: '1.5'
+                        }}
+                      >
+                        {String(children).replace(/\n$/, '')}
+                      </SyntaxHighlighter>
+                    </div>
+                  </Card>
                 ) : (
-                  <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono" {...props}>
+                  <code className="bg-primary/10 text-primary px-1.5 py-0.5 rounded-md text-xs font-mono border border-primary/20" {...props}>
                     {children}
                   </code>
                 );
@@ -723,47 +736,14 @@ I'll notify you when deployment completes.`,
             <Button
               onClick={() => setIsOpen(true)}
               size="lg"
-              className="h-16 w-16 rounded-full bg-gradient-to-r from-primary via-primary-hover to-primary-glow shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden group animate-bot-pulse"
+              className="h-14 w-14 rounded-full bg-gradient-to-r from-primary to-primary-glow shadow-lg hover:shadow-xl transition-all duration-300 relative"
             >
-              <motion.div
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  rotate: [0, 5, -5, 0] 
-                }}
-                transition={{ 
-                  duration: 3, 
-                  repeat: Infinity, 
-                  ease: "easeInOut" 
-                }}
-              >
-                <MessageCircle className="w-7 h-7 text-primary-foreground" />
-              </motion.div>
-              
-              {/* Animated Background */}
-              <motion.div
-                className="absolute inset-0 rounded-full opacity-30"
-                style={{
-                  background: `conic-gradient(from 0deg, 
-                    transparent 0deg,
-                    hsl(var(--primary)) 90deg,
-                    transparent 180deg,
-                    hsl(var(--primary-glow)) 270deg,
-                    transparent 360deg
-                  )`
-                }}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-              />
+              <MessageCircle className="w-5 h-5 text-primary-foreground" />
               
               {/* Notification Indicator */}
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="absolute -top-1 -right-1 w-5 h-5 bg-success rounded-full flex items-center justify-center shadow-lg"
-              >
-                <Sparkles className="w-2.5 h-2.5 text-success-foreground" />
-              </motion.div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-success rounded-full flex items-center justify-center shadow-lg">
+                <Sparkles className="w-2 h-2 text-success-foreground" />
+              </div>
             </Button>
           </motion.div>
         )}
@@ -782,7 +762,7 @@ I'll notify you when deployment completes.`,
                 ? 'inset-4 max-w-none' 
                 : isMinimized 
                 ? 'bottom-6 right-6 w-80 h-16'
-                : 'bottom-6 right-6 w-[32rem] h-[42rem]'
+                : 'bottom-6 right-6 w-[90vw] max-w-[42rem] h-[85vh] max-h-[42rem] sm:w-[32rem] md:w-[36rem] lg:w-[40rem]'
             }`}
           >
             <Card className={`
@@ -809,16 +789,12 @@ I'll notify you when deployment completes.`,
               <div className="relative flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-primary/5 to-accent/5">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Avatar className="w-10 h-10 bg-gradient-to-r from-primary via-primary-hover to-primary-glow animate-bot-pulse">
+                    <Avatar className="w-10 h-10 bg-gradient-to-r from-primary to-primary-glow">
                       <AvatarFallback>
                         <Bot className="w-5 h-5 text-primary-foreground" />
                       </AvatarFallback>
                     </Avatar>
-                    <motion.div
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-card shadow-md"
-                    />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-card shadow-md" />
                   </div>
                   
                   <div>
@@ -951,7 +927,7 @@ I'll notify you when deployment completes.`,
                           animate={{ opacity: 1, y: 0 }}
                           className="flex gap-3"
                         >
-                          <Avatar className="w-8 h-8 animate-bot-pulse">
+                          <Avatar className="w-8 h-8">
                             <AvatarFallback className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
                               <Bot className="w-4 h-4" />
                             </AvatarFallback>
