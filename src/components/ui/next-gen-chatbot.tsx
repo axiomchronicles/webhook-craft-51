@@ -971,6 +971,136 @@ I'll notify you when deployment completes.`,
                     {children}
                   </code>
                 );
+              },
+              table({children, ...props}: any) {
+                return (
+                  <Card className="mt-4 overflow-hidden border border-border/50 bg-gradient-to-br from-card/50 to-card/30">
+                    <div className="overflow-auto">
+                      <table className="w-full text-sm" {...props}>
+                        {children}
+                      </table>
+                    </div>
+                  </Card>
+                );
+              },
+              thead({children, ...props}: any) {
+                return (
+                  <thead className="bg-gradient-to-r from-primary/10 to-accent/10 border-b border-border/30" {...props}>
+                    {children}
+                  </thead>
+                );
+              },
+              th({children, ...props}: any) {
+                return (
+                  <th className="px-4 py-3 text-left font-semibold text-foreground border-r border-border/20 last:border-r-0" {...props}>
+                    {children}
+                  </th>
+                );
+              },
+              tbody({children, ...props}: any) {
+                return (
+                  <tbody {...props}>
+                    {children}
+                  </tbody>
+                );
+              },
+              tr({children, ...props}: any) {
+                return (
+                  <tr className="border-b border-border/20 hover:bg-gradient-to-r hover:from-primary/5 hover:to-accent/5 transition-colors duration-200" {...props}>
+                    {children}
+                  </tr>
+                );
+              },
+              td({children, ...props}: any) {
+                const content = String(children);
+                return (
+                  <td className="px-4 py-3 border-r border-border/10 last:border-r-0" {...props}>
+                    {/* Enhanced cell content with icons and styling */}
+                    {content.includes('🟢') ? (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="bg-success/10 text-success border-success/20">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          {content.replace('🟢 ', '')}
+                        </Badge>
+                      </div>
+                    ) : content.includes('📈') ? (
+                      <div className="flex items-center gap-2 text-success font-medium">
+                        <TrendingUp className="w-3 h-3" />
+                        {content.replace('📈 ', '')}
+                      </div>
+                    ) : content.includes('📉') ? (
+                      <div className="flex items-center gap-2 text-primary font-medium">
+                        <TrendingUp className="w-3 h-3 rotate-180" />
+                        {content.replace('📉 ', '')}
+                      </div>
+                    ) : content.includes('%') || content.includes('ms') ? (
+                      <span className="font-mono font-semibold text-primary">{children}</span>
+                    ) : content.includes('/') && (content.includes('total') || content.includes('month')) ? (
+                      <span className="font-mono text-muted-foreground">{children}</span>
+                    ) : (
+                      <span className="font-medium">{children}</span>
+                    )}
+                  </td>
+                );
+              },
+              h1({children, ...props}: any) {
+                return (
+                  <h1 className="text-lg font-bold text-foreground mt-4 mb-2 flex items-center gap-2" {...props}>
+                    <div className="w-1 h-6 bg-gradient-to-b from-primary to-accent rounded-full" />
+                    {children}
+                  </h1>
+                );
+              },
+              h2({children, ...props}: any) {
+                return (
+                  <h2 className="text-base font-semibold text-foreground mt-3 mb-2 flex items-center gap-2" {...props}>
+                    <div className="w-0.5 h-4 bg-primary rounded-full" />
+                    {children}
+                  </h2>
+                );
+              },
+              h3({children, ...props}: any) {
+                return (
+                  <h3 className="text-sm font-semibold text-foreground mt-2 mb-1" {...props}>
+                    {children}
+                  </h3>
+                );
+              },
+              ul({children, ...props}: any) {
+                return (
+                  <ul className="space-y-1 mt-2" {...props}>
+                    {children}
+                  </ul>
+                );
+              },
+              li({children, ...props}: any) {
+                return (
+                  <li className="flex items-start gap-2" {...props}>
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                    <span>{children}</span>
+                  </li>
+                );
+              },
+              p({children, ...props}: any) {
+                return (
+                  <p className="leading-relaxed" {...props}>
+                    {children}
+                  </p>
+                );
+              },
+              strong({children, ...props}: any) {
+                return (
+                  <strong className="font-semibold text-foreground" {...props}>
+                    {children}
+                  </strong>
+                );
+              },
+              blockquote({children, ...props}: any) {
+                return (
+                  <blockquote className="border-l-4 border-primary/30 pl-4 py-2 bg-primary/5 rounded-r-lg mt-2" {...props}>
+                    {children}
+                  </blockquote>
+                );
               }
             }}
           >
@@ -1311,7 +1441,7 @@ I'll notify you when deployment completes.`,
                   </div>
                 </div>
                 
-                {/* Always visible header controls */}
+                {/* Always visible header controls - Fixed positioning */}
                 <div className="flex items-center gap-1">
                   {!isMinimized && (
                     <>
@@ -1384,12 +1514,12 @@ I'll notify you when deployment completes.`,
                     {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
                   </Button>
                   
-                  {/* Always visible close button */}
+                  {/* Always visible close button - CRITICAL FIX */}
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsOpen(false)}
-                    className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive ml-1"
+                    className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive ml-1 relative z-50"
                     title="Close chat"
                   >
                     <X className="w-4 h-4" />
