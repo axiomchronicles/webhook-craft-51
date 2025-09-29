@@ -72,11 +72,24 @@
     /* Animation Variables */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Chat-Specific Colors */
+    --chat-background: 220 13% 99%;
+    --chat-pattern: 220 13% 96%;
+    --chat-bubble-user: 220 90% 56%;
+    --chat-bubble-bot: 220 13% 95%;
+    --chat-bubble-user-text: 0 0% 100%;
+    --chat-bubble-bot-text: 220 9% 15%;
+    --chat-input-bg: 0 0% 100%;
+    --chat-glow: 220 90% 56%;
 
     /* Gradient Definitions */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
     --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(160 84% 45%));
     --gradient-glow: radial-gradient(circle at center, hsl(var(--primary) / 0.1), transparent 70%);
+    --gradient-chat-bg: linear-gradient(135deg, hsl(var(--chat-background)), hsl(var(--chat-pattern)));
+    --pattern-circuit: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f0f4f8' fill-opacity='0.03'%3E%3Ccircle cx='3' cy='3' r='0.5'/%3E%3Ccircle cx='13' cy='13' r='0.5'/%3E%3C/g%3E%3C/svg%3E");
 
     /* Shadow Definitions */
     --shadow-sm: 0 1px 2px 0 hsl(220 9% 15% / 0.05);
@@ -156,10 +169,22 @@
     --chart-4: 271 81% 66%;
     --chart-5: 0 84% 65%;
 
+    /* Chat-Specific Colors - Dark Theme */
+    --chat-background: 222 47% 5%;
+    --chat-pattern: 222 47% 8%;
+    --chat-bubble-user: 220 90% 66%;
+    --chat-bubble-bot: 222 47% 12%;
+    --chat-bubble-user-text: 222 47% 4%;
+    --chat-bubble-bot-text: 220 9% 95%;
+    --chat-input-bg: 222 47% 8%;
+    --chat-glow: 220 90% 66%;
+
     /* Gradient Definitions - Dark Theme */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
     --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(160 84% 55%));
     --gradient-glow: radial-gradient(circle at center, hsl(var(--primary) / 0.15), transparent 70%);
+    --gradient-chat-bg: linear-gradient(135deg, hsl(var(--chat-background)), hsl(var(--chat-pattern)));
+    --pattern-circuit: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Ccircle cx='3' cy='3' r='0.5'/%3E%3Ccircle cx='13' cy='13' r='0.5'/%3E%3C/g%3E%3C/svg%3E");
 
     /* Shadow Definitions - Dark Theme */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
@@ -346,5 +371,54 @@
   }
   50% {
     opacity: 1;
+  }
+}
+
+@keyframes bounce-dots {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.6), 0 0 60px hsl(var(--primary) / 0.2);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }
