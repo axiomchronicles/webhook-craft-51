@@ -28,7 +28,7 @@ import {
   Sun,
   Moon
 } from 'lucide-react';
-// import { useConversation } from '@11labs/react';
+import { useConversation } from '@11labs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -135,14 +135,7 @@ const DEVELOPER_COMMANDS = [
 export function ChatBot() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
-  // ElevenLabs conversation hook (temporarily disabled to fix loading)
-  const conversation = {
-    startSession: async () => 'mock-session',
-    endSession: async () => {},
-    setVolume: async () => {},
-    status: 'disconnected',
-    isSpeaking: false
-  };
+  const conversation = useConversation();
   
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
