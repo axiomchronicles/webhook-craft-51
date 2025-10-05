@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { supabase } from '@/integrations/supabase/client';
+import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 export interface User {
   id: string;
@@ -12,69 +13,98 @@ export interface User {
 
 export interface AuthState {
   user: User | null;
+  session: Session | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  initialize: () => void;
+  initialize: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
-// Mock user for demo purposes
-const mockUser: User = {
-  id: '1',
-  email: 'admin@webhooksgateway.com',
-  name: 'Sarah Chen',
-  role: 'admin',
-  avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=faces',
-  organizationId: 'org_1'
-};
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  session: null,
+  isAuthenticated: false,
+  isLoading: true,
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
+  initialize: async () => {
+    try {
+      // Set up auth state listener
+      supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            // Fetch user profile
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
 
-      login: async (email: string, password: string) => {
-        set({ isLoading: true });
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        if (email === 'admin@webhooksgateway.com' && password === 'admin123') {
-          set({ 
-            user: mockUser, 
-            isAuthenticated: true, 
-            isLoading: false 
-          });
-        } else {
-          set({ isLoading: false });
-          throw new Error('Invalid credentials');
+            const user: User = {
+              id: session.user.id,
+              email: session.user.email || '',
+              name: profile?.name || session.user.email || '',
+              role: (profile?.role as 'admin' | 'developer' | 'viewer') || 'developer',
+              avatar: profile?.avatar || undefined,
+              organizationId: profile?.organization_id || '',
+            };
+
+            set({
+              user,
+              session,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } else {
+            set({
+              user: null,
+              session: null,
+              isAuthenticated: false,
+              isLoading: false,
+            });
+          }
         }
-      },
+      );
 
-      logout: () => {
-        set({ 
-          user: null, 
-          isAuthenticated: false 
-        });
-      },
+      // Check for existing session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
 
-      initialize: () => {
-        // Auto-login for demo purposes
-        set({ 
-          user: mockUser, 
-          isAuthenticated: true 
+        const user: User = {
+          id: session.user.id,
+          email: session.user.email || '',
+          name: profile?.name || session.user.email || '',
+          role: (profile?.role as 'admin' | 'developer' | 'viewer') || 'developer',
+          avatar: profile?.avatar || undefined,
+          organizationId: profile?.organization_id || '',
+        };
+
+        set({
+          user,
+          session,
+          isAuthenticated: true,
+          isLoading: false,
         });
+      } else {
+        set({ isLoading: false });
       }
-    }),
-    {
-      name: 'auth-storage',
-      partialize: (state) => ({ 
-        user: state.user, 
-        isAuthenticated: state.isAuthenticated 
-      }),
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+      set({ isLoading: false });
     }
-  )
-);
+  },
+
+  logout: async () => {
+    await supabase.auth.signOut();
+    set({
+      user: null,
+      session: null,
+      isAuthenticated: false,
+    });
+  },
+}));
