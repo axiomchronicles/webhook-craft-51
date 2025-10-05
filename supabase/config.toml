@@ -1,1 +1,7 @@
 project_id = "ftxeroabwjwulzbkkswk"
+
+[functions.webhook-receiver]
+verify_jwt = false
+
+[functions.webhook-processor]
+verify_jwt = false

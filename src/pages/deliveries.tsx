@@ -9,7 +9,8 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
-  Timer
+  Timer,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,19 +32,29 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useUIStore } from '@/store/ui';
-import { mockDeliveries, statusColors } from '@/lib/mock-data';
+import { useDeliveries } from '@/hooks/use-deliveries';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function Deliveries() {
   const { openRightDrawer } = useUIStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const { deliveries, isLoading, retryDelivery } = useDeliveries();
 
-  const filteredDeliveries = mockDeliveries.filter(delivery => {
-    const matchesSearch = delivery.endpointName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         delivery.event.toLowerCase().includes(searchQuery.toLowerCase());
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const filteredDeliveries = deliveries?.filter(delivery => {
+    const matchesSearch = delivery.endpoints?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         delivery.id.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || delivery.status === statusFilter;
     return matchesSearch && matchesStatus;
-  });
+  }) || [];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -60,17 +71,24 @@ export default function Deliveries() {
     }
   };
 
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (minutes < 1440) return `${Math.floor(minutes / 60)}h ago`;
-    return date.toLocaleDateString();
+  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+      case 'success':
+        return 'default';
+      case 'failed':
+        return 'destructive';
+      case 'retrying':
+      case 'pending':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
   };
+
+  const totalDeliveries = deliveries?.length || 0;
+  const successfulDeliveries = deliveries?.filter(d => d.status === 'success').length || 0;
+  const failedDeliveries = deliveries?.filter(d => d.status === 'failed').length || 0;
+  const retryingDeliveries = deliveries?.filter(d => d.status === 'retrying').length || 0;
 
   return (
     <div className="p-6 space-y-6">
@@ -86,7 +104,7 @@ export default function Deliveries() {
             Monitor webhook delivery status and performance
           </p>
         </div>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2" onClick={() => window.location.reload()}>
           <RefreshCw className="w-4 h-4" />
           Refresh
         </Button>
@@ -103,7 +121,7 @@ export default function Deliveries() {
           <CardContent>
             <div className="flex items-center gap-2">
               <Timer className="w-5 h-5 text-primary" />
-              <span className="text-2xl font-bold">{mockDeliveries.length}</span>
+              <span className="text-2xl font-bold">{totalDeliveries}</span>
             </div>
           </CardContent>
         </Card>
@@ -117,9 +135,7 @@ export default function Deliveries() {
           <CardContent>
             <div className="flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-success" />
-              <span className="text-2xl font-bold">
-                {mockDeliveries.filter(d => d.status === 'success').length}
-              </span>
+              <span className="text-2xl font-bold">{successfulDeliveries}</span>
             </div>
           </CardContent>
         </Card>
@@ -133,9 +149,7 @@ export default function Deliveries() {
           <CardContent>
             <div className="flex items-center gap-2">
               <XCircle className="w-5 h-5 text-destructive" />
-              <span className="text-2xl font-bold">
-                {mockDeliveries.filter(d => d.status === 'failed').length}
-              </span>
+              <span className="text-2xl font-bold">{failedDeliveries}</span>
             </div>
           </CardContent>
         </Card>
@@ -149,9 +163,7 @@ export default function Deliveries() {
           <CardContent>
             <div className="flex items-center gap-2">
               <RefreshCw className="w-5 h-5 text-warning" />
-              <span className="text-2xl font-bold">
-                {mockDeliveries.filter(d => d.status === 'retrying').length}
-              </span>
+              <span className="text-2xl font-bold">{retryingDeliveries}</span>
             </div>
           </CardContent>
         </Card>
@@ -201,113 +213,143 @@ export default function Deliveries() {
       </Card>
 
       {/* Deliveries Table */}
-      <Card className="hover-glow">
-        <CardHeader>
-          <CardTitle>Recent Deliveries</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Status</TableHead>
-                <TableHead>Endpoint</TableHead>
-                <TableHead>Event</TableHead>
-                <TableHead>Response Time</TableHead>
-                <TableHead>Retries</TableHead>
-                <TableHead>Timestamp</TableHead>
-                <TableHead className="w-[50px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredDeliveries.map((delivery) => (
-                <motion.tr
-                  key={delivery.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="group hover:bg-muted/30 cursor-pointer"
-                  onClick={() => openRightDrawer('inspector')}
-                >
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(delivery.status)}
-                      <Badge 
-                        variant="secondary"
-                        className={`status-indicator ${statusColors[delivery.status]}`}
-                      >
-                        {delivery.status}
-                      </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{delivery.endpointName}</p>
-                      <p className="text-xs text-muted-foreground font-mono">
-                        {delivery.id}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="font-mono text-xs">
-                      {delivery.event}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className={`font-medium ${
-                        delivery.responseTime < 1000 ? 'text-success' :
-                        delivery.responseTime < 5000 ? 'text-warning' :
-                        'text-destructive'
-                      }`}>
-                        {delivery.responseTime}ms
-                      </span>
-                      {delivery.responseCode && (
-                        <Badge 
-                          variant="outline" 
-                          className={`text-xs ${
-                            delivery.responseCode >= 200 && delivery.responseCode < 300 
-                              ? 'text-success' 
-                              : 'text-destructive'
-                          }`}
+      {filteredDeliveries.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <Timer className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground text-center mb-4">
+              {searchQuery || statusFilter !== 'all'
+                ? 'No deliveries match your filters'
+                : 'No deliveries yet. Webhooks will appear here once received.'}
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="hover-glow">
+          <CardHeader>
+            <CardTitle>Recent Deliveries</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Endpoint</TableHead>
+                  <TableHead>Response</TableHead>
+                  <TableHead>Attempts</TableHead>
+                  <TableHead>Timestamp</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDeliveries.map((delivery) => (
+                  <motion.tr
+                    key={delivery.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="group hover:bg-muted/30"
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {getStatusIcon(delivery.status)}
+                        <Badge variant={getStatusVariant(delivery.status)}>
+                          {delivery.status}
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{delivery.endpoints?.name || 'Unknown'}</p>
+                        <p className="text-xs text-muted-foreground font-mono truncate max-w-xs">
+                          {delivery.endpoints?.url || 'N/A'}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {delivery.response_time_ms && (
+                          <span className={`font-medium text-sm ${
+                            delivery.response_time_ms < 1000 ? 'text-success' :
+                            delivery.response_time_ms < 5000 ? 'text-warning' :
+                            'text-destructive'
+                          }`}>
+                            {delivery.response_time_ms}ms
+                          </span>
+                        )}
+                        {delivery.response_status && (
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${
+                              delivery.response_status >= 200 && delivery.response_status < 300 
+                                ? 'text-success' 
+                                : 'text-destructive'
+                            }`}
+                          >
+                            {delivery.response_status}
+                          </Badge>
+                        )}
+                        {delivery.error_message && (
+                          <span className="text-xs text-destructive truncate max-w-xs">
+                            {delivery.error_message}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm">{delivery.attempt_count} / {delivery.max_attempts}</span>
+                        {delivery.next_retry_at && (
+                          <Badge variant="outline" className="text-xs">
+                            Next: {formatDistanceToNow(new Date(delivery.next_retry_at), { addSuffix: true })}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(delivery.created_at), { addSuffix: true })}
+                        </span>
+                        {delivery.completed_at && (
+                          <span className="text-xs text-muted-foreground">
+                            Completed: {formatDistanceToNow(new Date(delivery.completed_at), { addSuffix: true })}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        {(delivery.status === 'failed' || delivery.status === 'retrying') && 
+                         delivery.attempt_count < delivery.max_attempts && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-8 h-8 p-0"
+                            onClick={() => retryDelivery.mutate(delivery.id)}
+                            disabled={retryDelivery.isPending}
+                            title="Retry Now"
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-8 h-8 p-0"
+                          onClick={() => openRightDrawer('inspector')}
+                          title="View Details"
                         >
-                          {delivery.responseCode}
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">{delivery.retryCount}</span>
-                      {delivery.nextRetry && (
-                        <Badge variant="outline" className="text-xs">
-                          Next: {formatTimestamp(delivery.nextRetry)}
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-xs text-muted-foreground">
-                      {formatTimestamp(delivery.timestamp)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-8 h-8 p-0 opacity-0 group-hover:opacity-100"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openRightDrawer('inspector');
-                      }}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                  </TableCell>
-                </motion.tr>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </motion.tr>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

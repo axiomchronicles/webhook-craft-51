@@ -14,6 +14,213 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      deliveries: {
+        Row: {
+          attempt_count: number | null
+          completed_at: string | null
+          created_at: string | null
+          endpoint_id: string
+          error_message: string | null
+          event_id: string | null
+          id: string
+          max_attempts: number | null
+          next_retry_at: string | null
+          request_headers: Json | null
+          request_payload: Json | null
+          response_body: string | null
+          response_headers: Json | null
+          response_status: number | null
+          response_time_ms: number | null
+          status: Database["public"]["Enums"]["delivery_status"] | null
+          user_id: string
+        }
+        Insert: {
+          attempt_count?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          endpoint_id: string
+          error_message?: string | null
+          event_id?: string | null
+          id?: string
+          max_attempts?: number | null
+          next_retry_at?: string | null
+          request_headers?: Json | null
+          request_payload?: Json | null
+          response_body?: string | null
+          response_headers?: Json | null
+          response_status?: number | null
+          response_time_ms?: number | null
+          status?: Database["public"]["Enums"]["delivery_status"] | null
+          user_id: string
+        }
+        Update: {
+          attempt_count?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          endpoint_id?: string
+          error_message?: string | null
+          event_id?: string | null
+          id?: string
+          max_attempts?: number | null
+          next_retry_at?: string | null
+          request_headers?: Json | null
+          request_payload?: Json | null
+          response_body?: string | null
+          response_headers?: Json | null
+          response_status?: number | null
+          response_time_ms?: number | null
+          status?: Database["public"]["Enums"]["delivery_status"] | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliveries_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliveries_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      endpoints: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          failed_deliveries: number | null
+          headers: Json | null
+          id: string
+          last_triggered_at: string | null
+          method: Database["public"]["Enums"]["http_method"] | null
+          name: string
+          retry_config: Json | null
+          secret: string | null
+          status: Database["public"]["Enums"]["webhook_status"] | null
+          successful_deliveries: number | null
+          timeout_ms: number | null
+          total_deliveries: number | null
+          updated_at: string | null
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          failed_deliveries?: number | null
+          headers?: Json | null
+          id?: string
+          last_triggered_at?: string | null
+          method?: Database["public"]["Enums"]["http_method"] | null
+          name: string
+          retry_config?: Json | null
+          secret?: string | null
+          status?: Database["public"]["Enums"]["webhook_status"] | null
+          successful_deliveries?: number | null
+          timeout_ms?: number | null
+          total_deliveries?: number | null
+          updated_at?: string | null
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          failed_deliveries?: number | null
+          headers?: Json | null
+          id?: string
+          last_triggered_at?: string | null
+          method?: Database["public"]["Enums"]["http_method"] | null
+          name?: string
+          retry_config?: Json | null
+          secret?: string | null
+          status?: Database["public"]["Enums"]["webhook_status"] | null
+          successful_deliveries?: number | null
+          timeout_ms?: number | null
+          total_deliveries?: number | null
+          updated_at?: string | null
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          headers: Json | null
+          id: string
+          payload: Json
+          processed: boolean | null
+          processed_at: string | null
+          source: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          headers?: Json | null
+          id?: string
+          payload: Json
+          processed?: boolean | null
+          processed_at?: string | null
+          source?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          headers?: Json | null
+          id?: string
+          payload?: Json
+          processed?: boolean | null
+          processed_at?: string | null
+          source?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar: string | null
@@ -55,7 +262,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      delivery_status: "pending" | "success" | "failed" | "retrying"
+      http_method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
+      webhook_status: "active" | "inactive" | "paused"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -182,6 +391,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      delivery_status: ["pending", "success", "failed", "retrying"],
+      http_method: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+      webhook_status: ["active", "inactive", "paused"],
+    },
   },
 } as const
